@@ -1,0 +1,127 @@
+2026-04-21 23:22:49.554 [main] INFO  com.dimazak.gym.service.TrainingService - Selecting training with id: 1
+2026-04-21 23:22:49.596 [main] INFO  com.dimazak.gym.service.TrainingService - Selecting training with id: 99
+2026-04-21 23:22:49.597 [main] WARN  com.dimazak.gym.service.TrainingService - Training not found with id: 99
+2026-04-21 23:22:49.612 [main] INFO  com.dimazak.gym.service.TrainingService - Creating training 'Cardio Session' for traineeId: 1, trainerId: 1
+2026-04-21 23:22:49.614 [main] INFO  com.dimazak.gym.service.TrainingService - Training created with id: 1
+2026-04-21 23:22:49.821 [main] INFO  com.dimazak.gym.service.TraineeService - Creating trainee profile for: John Doe
+2026-04-21 23:22:49.823 [main] INFO  com.dimazak.gym.service.TraineeService - User created with username: John.Doe
+2026-04-21 23:22:49.824 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee profile created with id: 1
+2026-04-21 23:22:49.841 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 99
+2026-04-21 23:22:49.842 [main] ERROR com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-04-21 23:22:49.858 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 99
+2026-04-21 23:22:49.859 [main] ERROR com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-04-21 23:22:49.874 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 1
+2026-04-21 23:22:49.875 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee deleted successfully with id: 1
+2026-04-21 23:22:49.886 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 1
+2026-04-21 23:22:49.897 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 1
+2026-04-21 23:22:49.898 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee updated successfully with id: 1
+2026-04-21 23:22:49.907 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 99
+2026-04-21 23:22:49.908 [main] WARN  com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-04-21 23:22:50.006 [main] WARN  com.dimazak.gym.dao.TraineeDao - Attempted to delete non-existent trainee with id: 99
+2026-04-21 23:22:50.056 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith
+2026-04-21 23:22:50.063 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith1
+2026-04-21 23:22:50.069 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith2
+2026-04-21 23:22:50.106 [main] INFO  com.dimazak.gym.service.TrainerService - Selecting trainer with id: 99
+2026-04-21 23:22:50.107 [main] WARN  com.dimazak.gym.service.TrainerService - Trainer not found with id: 99
+2026-04-21 23:22:50.117 [main] INFO  com.dimazak.gym.service.TrainerService - Updating trainer with id: 99
+2026-04-21 23:22:50.118 [main] ERROR com.dimazak.gym.service.TrainerService - Trainer not found with id: 99
+2026-04-21 23:22:50.127 [main] INFO  com.dimazak.gym.service.TrainerService - Selecting trainer with id: 1
+2026-04-21 23:22:50.153 [main] INFO  com.dimazak.gym.service.TrainerService - Creating trainer profile for: Jane Doe
+2026-04-21 23:22:50.155 [main] INFO  com.dimazak.gym.service.TrainerService - User created with username: Jane.Doe
+2026-04-21 23:22:50.155 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer profile created with id: 1
+2026-04-21 23:22:50.164 [main] INFO  com.dimazak.gym.service.TrainerService - Updating trainer with id: 1
+2026-04-21 23:22:50.166 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer updated successfully with id: 1
+2026-04-21 23:22:50.271 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainer
+2026-04-21 23:22:50.278 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainee id=1
+2026-04-21 23:22:50.285 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating training
+2026-04-21 23:22:50.291 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainer id=1
+2026-04-21 23:22:50.295 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: deleting trainee id=1
+2026-04-21 23:22:50.300 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting training id=1
+2026-04-21 23:22:50.305 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainee
+2026-04-21 23:22:50.311 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainee id=1
+2026-04-21 23:22:50.315 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainer id=1
+2026-04-21 23:25:59.906 [main] INFO  com.dimazak.gym.service.TrainingService - Selecting training with id: 1
+2026-04-21 23:25:59.930 [main] INFO  com.dimazak.gym.service.TrainingService - Selecting training with id: 99
+2026-04-21 23:25:59.930 [main] WARN  com.dimazak.gym.service.TrainingService - Training not found with id: 99
+2026-04-21 23:25:59.939 [main] INFO  com.dimazak.gym.service.TrainingService - Creating training 'Cardio Session' for traineeId: 1, trainerId: 1
+2026-04-21 23:25:59.940 [main] INFO  com.dimazak.gym.service.TrainingService - Training created with id: 1
+2026-04-21 23:26:00.080 [main] INFO  com.dimazak.gym.service.TraineeService - Creating trainee profile for: John Doe
+2026-04-21 23:26:00.081 [main] INFO  com.dimazak.gym.service.TraineeService - User created with username: John.Doe
+2026-04-21 23:26:00.082 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee profile created with id: 1
+2026-04-21 23:26:00.092 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 99
+2026-04-21 23:26:00.092 [main] ERROR com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-04-21 23:26:00.099 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 99
+2026-04-21 23:26:00.100 [main] ERROR com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-04-21 23:26:00.107 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 1
+2026-04-21 23:26:00.108 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee deleted successfully with id: 1
+2026-04-21 23:26:00.115 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 1
+2026-04-21 23:26:00.122 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 1
+2026-04-21 23:26:00.123 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee updated successfully with id: 1
+2026-04-21 23:26:00.130 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 99
+2026-04-21 23:26:00.130 [main] WARN  com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-04-21 23:26:00.187 [main] WARN  com.dimazak.gym.dao.TraineeDao - Attempted to delete non-existent trainee with id: 99
+2026-04-21 23:26:00.221 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith
+2026-04-21 23:26:00.229 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith1
+2026-04-21 23:26:00.234 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith2
+2026-04-21 23:26:00.268 [main] INFO  com.dimazak.gym.service.TrainerService - Selecting trainer with id: 99
+2026-04-21 23:26:00.269 [main] WARN  com.dimazak.gym.service.TrainerService - Trainer not found with id: 99
+2026-04-21 23:26:00.275 [main] INFO  com.dimazak.gym.service.TrainerService - Updating trainer with id: 99
+2026-04-21 23:26:00.276 [main] ERROR com.dimazak.gym.service.TrainerService - Trainer not found with id: 99
+2026-04-21 23:26:00.284 [main] INFO  com.dimazak.gym.service.TrainerService - Selecting trainer with id: 1
+2026-04-21 23:26:00.294 [main] INFO  com.dimazak.gym.service.TrainerService - Creating trainer profile for: Jane Doe
+2026-04-21 23:26:00.295 [main] INFO  com.dimazak.gym.service.TrainerService - User created with username: Jane.Doe
+2026-04-21 23:26:00.296 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer profile created with id: 1
+2026-04-21 23:26:00.302 [main] INFO  com.dimazak.gym.service.TrainerService - Updating trainer with id: 1
+2026-04-21 23:26:00.303 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer updated successfully with id: 1
+2026-04-21 23:26:00.394 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainer
+2026-04-21 23:26:00.399 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainee id=1
+2026-04-21 23:26:00.404 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating training
+2026-04-21 23:26:00.409 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainer id=1
+2026-04-21 23:26:00.412 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: deleting trainee id=1
+2026-04-21 23:26:00.417 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting training id=1
+2026-04-21 23:26:00.422 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainee
+2026-04-21 23:26:00.427 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainee id=1
+2026-04-21 23:26:00.431 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainer id=1
+2026-04-21 23:27:15.492 [main] INFO  com.dimazak.gym.GymCrmApp - Starting Gym CRM Application
+2026-04-21 23:27:15.985 [main] INFO  com.dimazak.gym.storage.InMemoryStorage - Initializing in-memory storage from file: initial-data.json
+2026-04-21 23:27:16.313 [main] WARN  o.s.context.annotation.AnnotationConfigApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'traineeDao': Unsatisfied dependency expressed through method 'setStorage' parameter 0: Error creating bean with name 'inMemoryStorage': Invocation of init method failed
+2026-04-21 23:29:18.826 [main] INFO  com.dimazak.gym.GymCrmApp - Starting Gym CRM Application
+2026-04-21 23:29:19.413 [main] INFO  com.dimazak.gym.storage.InMemoryStorage - Initializing in-memory storage from file: initial-data.json
+2026-04-21 23:29:19.786 [main] INFO  com.dimazak.gym.storage.InMemoryStorage - Storage initialized successfully. Users: 2, Trainees: 1, Trainers: 1, Trainings: 1, TrainingTypes: 3
+2026-04-21 23:29:19.825 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainee
+2026-04-21 23:29:19.825 [main] INFO  com.dimazak.gym.service.TraineeService - Creating trainee profile for: Alice Johnson
+2026-04-21 23:29:19.827 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: Alice.Johnson
+2026-04-21 23:29:19.828 [main] INFO  com.dimazak.gym.service.TraineeService - User created with username: Alice.Johnson
+2026-04-21 23:29:19.828 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee profile created with id: 2
+2026-04-21 23:29:19.828 [main] INFO  com.dimazak.gym.GymCrmApp - Created trainee: Trainee{id=2, dateOfBirth=1998-03-25, address='456 Elm St', userId=3}
+2026-04-21 23:29:19.832 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainee
+2026-04-21 23:29:19.832 [main] INFO  com.dimazak.gym.service.TraineeService - Creating trainee profile for: John Smith
+2026-04-21 23:29:19.832 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith1
+2026-04-21 23:29:19.833 [main] INFO  com.dimazak.gym.service.TraineeService - User created with username: John.Smith1
+2026-04-21 23:29:19.834 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee profile created with id: 3
+2026-04-21 23:29:19.834 [main] INFO  com.dimazak.gym.GymCrmApp - Created trainee (duplicate name test): Trainee{id=3, dateOfBirth=2000-01-01, address='789 Oak Ave', userId=4}
+2026-04-21 23:29:19.834 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainer
+2026-04-21 23:29:19.834 [main] INFO  com.dimazak.gym.service.TrainerService - Creating trainer profile for: Bob Williams
+2026-04-21 23:29:19.834 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: Bob.Williams
+2026-04-21 23:29:19.834 [main] INFO  com.dimazak.gym.service.TrainerService - User created with username: Bob.Williams
+2026-04-21 23:29:19.835 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer profile created with id: 2
+2026-04-21 23:29:19.835 [main] INFO  com.dimazak.gym.GymCrmApp - Created trainer: Trainer{id=2, specialization=2, userId=5}
+2026-04-21 23:29:19.838 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating training
+2026-04-21 23:29:19.838 [main] INFO  com.dimazak.gym.service.TrainingService - Creating training 'Evening Strength' for traineeId: 2, trainerId: 2
+2026-04-21 23:29:19.838 [main] INFO  com.dimazak.gym.service.TrainingService - Training created with id: 2
+2026-04-21 23:29:19.838 [main] INFO  com.dimazak.gym.GymCrmApp - Created training: Training{id=2, traineeId=2, trainerId=2, trainingName='Evening Strength', trainingDate=2024-04-01, duration=90min}
+2026-04-21 23:29:19.842 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainee id=2
+2026-04-21 23:29:19.842 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 2
+2026-04-21 23:29:19.843 [main] INFO  com.dimazak.gym.GymCrmApp - Selected trainee: Trainee{id=2, dateOfBirth=1998-03-25, address='456 Elm St', userId=3}
+2026-04-21 23:29:19.843 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainee id=2
+2026-04-21 23:29:19.843 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 2
+2026-04-21 23:29:19.843 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee updated successfully with id: 2
+2026-04-21 23:29:19.843 [main] INFO  com.dimazak.gym.GymCrmApp - Updated trainee: Trainee{id=2, dateOfBirth=1998-03-25, address='999 New Address', userId=3}
+2026-04-21 23:29:19.843 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: deleting trainee id=2
+2026-04-21 23:29:19.843 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 2
+2026-04-21 23:29:19.843 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee deleted successfully with id: 2
+2026-04-21 23:29:19.843 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainee id=2
+2026-04-21 23:29:19.843 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 2
+2026-04-21 23:29:19.843 [main] WARN  com.dimazak.gym.service.TraineeService - Trainee not found with id: 2
+2026-04-21 23:29:19.843 [main] INFO  com.dimazak.gym.GymCrmApp - Deleted trainee, exists now: false
+2026-04-21 23:29:19.845 [main] INFO  com.dimazak.gym.GymCrmApp - Gym CRM Application finished
