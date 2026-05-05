@@ -125,3 +125,558 @@
 2026-04-21 23:29:19.843 [main] WARN  com.dimazak.gym.service.TraineeService - Trainee not found with id: 2
 2026-04-21 23:29:19.843 [main] INFO  com.dimazak.gym.GymCrmApp - Deleted trainee, exists now: false
 2026-04-21 23:29:19.845 [main] INFO  com.dimazak.gym.GymCrmApp - Gym CRM Application finished
+2026-05-05 17:20:33.876 [main] INFO  com.dimazak.gym.service.TrainingService - Selecting training with id: 1
+2026-05-05 17:20:33.913 [main] INFO  com.dimazak.gym.service.TrainingService - Selecting training with id: 99
+2026-05-05 17:20:33.914 [main] WARN  com.dimazak.gym.service.TrainingService - Training not found with id: 99
+2026-05-05 17:20:33.925 [main] INFO  com.dimazak.gym.service.TrainingService - Creating training 'Cardio Session' for traineeId: 1, trainerId: 1
+2026-05-05 17:20:33.926 [main] INFO  com.dimazak.gym.service.TrainingService - Training created with id: 1
+2026-05-05 17:20:33.981 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: initial-data.json
+2026-05-05 17:20:34.353 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 3 training types
+2026-05-05 17:20:34.363 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 2 users
+2026-05-05 17:20:34.370 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainees
+2026-05-05 17:20:34.372 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainers
+2026-05-05 17:20:34.377 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainings
+2026-05-05 17:20:34.377 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Storage initialized. Users: 2, Trainees: 1, Trainers: 1, Trainings: 1, Types: 3
+2026-05-05 17:20:34.380 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: non-existent.json
+2026-05-05 17:20:34.381 [main] WARN  com.dimazak.gym.storage.StorageInitializer - File 'non-existent.json' not found. Starting with empty storage.
+2026-05-05 17:20:34.384 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: initial-data.json
+2026-05-05 17:20:34.388 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 3 training types
+2026-05-05 17:20:34.391 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 2 users
+2026-05-05 17:20:34.393 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainees
+2026-05-05 17:20:34.395 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainers
+2026-05-05 17:20:34.397 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainings
+2026-05-05 17:20:34.397 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Storage initialized. Users: 2, Trainees: 1, Trainers: 1, Trainings: 1, Types: 3
+2026-05-05 17:20:34.403 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Saved training with id: 5
+2026-05-05 17:20:34.406 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding training by id: 1
+2026-05-05 17:20:34.409 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding training by id: 99
+2026-05-05 17:20:34.416 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding all trainings
+2026-05-05 17:20:34.419 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Saved training with id: 1
+2026-05-05 17:20:34.458 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith
+2026-05-05 17:20:34.463 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith1
+2026-05-05 17:20:34.469 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith2
+2026-05-05 17:20:34.475 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Saved trainer with id: 5
+2026-05-05 17:20:34.478 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding trainer by id: 99
+2026-05-05 17:20:34.480 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding trainer by id: 1
+2026-05-05 17:20:34.483 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding all trainers
+2026-05-05 17:20:34.485 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Saved trainer with id: 1
+2026-05-05 17:20:34.490 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Deleted trainee with id: 1
+2026-05-05 17:20:34.494 [main] WARN  com.dimazak.gym.dao.TraineeDao - Attempted to delete non-existent trainee with id: 99
+2026-05-05 17:20:34.496 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 5
+2026-05-05 17:20:34.498 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 99
+2026-05-05 17:20:34.500 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 1
+2026-05-05 17:20:34.502 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding all trainees
+2026-05-05 17:20:34.504 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 1
+2026-05-05 17:20:34.594 [main] INFO  com.dimazak.gym.service.TraineeService - Creating trainee profile for: John Doe
+2026-05-05 17:20:34.595 [main] INFO  com.dimazak.gym.service.TraineeService - User created with username: John.Doe
+2026-05-05 17:20:34.596 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee profile created with id: 1
+2026-05-05 17:20:34.603 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 99
+2026-05-05 17:20:34.603 [main] ERROR com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:20:34.609 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 99
+2026-05-05 17:20:34.610 [main] ERROR com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:20:34.615 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 1
+2026-05-05 17:20:34.616 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee deleted successfully with id: 1
+2026-05-05 17:20:34.623 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 1
+2026-05-05 17:20:34.630 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 1
+2026-05-05 17:20:34.630 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee updated successfully with id: 1
+2026-05-05 17:20:34.635 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 99
+2026-05-05 17:20:34.636 [main] WARN  com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:20:34.641 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding user by id: 1
+2026-05-05 17:20:34.644 [main] WARN  com.dimazak.gym.dao.UserDao - Attempted to delete non-existent user with id: 99
+2026-05-05 17:20:34.646 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 5
+2026-05-05 17:20:34.648 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding user by id: 99
+2026-05-05 17:20:34.651 [main] DEBUG com.dimazak.gym.dao.UserDao - Deleted user with id: 1
+2026-05-05 17:20:34.653 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding all users
+2026-05-05 17:20:34.655 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 1
+2026-05-05 17:20:34.659 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:20:34.660 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:20:34.663 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:20:34.666 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:20:34.760 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainer
+2026-05-05 17:20:34.767 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainee id=1
+2026-05-05 17:20:34.775 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating training
+2026-05-05 17:20:34.780 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainer id=1
+2026-05-05 17:20:34.786 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: deleting trainee id=1
+2026-05-05 17:20:34.793 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting training id=1
+2026-05-05 17:20:34.800 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainee
+2026-05-05 17:20:34.805 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainee id=1
+2026-05-05 17:20:34.809 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainer id=1
+2026-05-05 17:20:34.840 [main] INFO  com.dimazak.gym.service.TrainerService - Selecting trainer with id: 99
+2026-05-05 17:20:34.840 [main] WARN  com.dimazak.gym.service.TrainerService - Trainer not found with id: 99
+2026-05-05 17:20:34.847 [main] INFO  com.dimazak.gym.service.TrainerService - Updating trainer with id: 99
+2026-05-05 17:20:34.849 [main] ERROR com.dimazak.gym.service.TrainerService - Trainer not found with id: 99
+2026-05-05 17:20:34.856 [main] INFO  com.dimazak.gym.service.TrainerService - Selecting trainer with id: 1
+2026-05-05 17:20:34.864 [main] INFO  com.dimazak.gym.service.TrainerService - Creating trainer profile for: Jane Doe
+2026-05-05 17:20:34.865 [main] INFO  com.dimazak.gym.service.TrainerService - User created with username: Jane.Doe
+2026-05-05 17:20:34.866 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer profile created with id: 1
+2026-05-05 17:20:34.874 [main] INFO  com.dimazak.gym.service.TrainerService - Updating trainer with id: 1
+2026-05-05 17:20:34.875 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer updated successfully with id: 1
+2026-05-05 17:20:58.337 [main] INFO  com.dimazak.gym.service.TrainingService - Selecting training with id: 1
+2026-05-05 17:20:58.383 [main] INFO  com.dimazak.gym.service.TrainingService - Selecting training with id: 99
+2026-05-05 17:20:58.384 [main] WARN  com.dimazak.gym.service.TrainingService - Training not found with id: 99
+2026-05-05 17:20:58.396 [main] INFO  com.dimazak.gym.service.TrainingService - Creating training 'Cardio Session' for traineeId: 1, trainerId: 1
+2026-05-05 17:20:58.397 [main] INFO  com.dimazak.gym.service.TrainingService - Training created with id: 1
+2026-05-05 17:20:58.447 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: initial-data.json
+2026-05-05 17:20:58.816 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 3 training types
+2026-05-05 17:20:58.826 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 2 users
+2026-05-05 17:20:58.835 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainees
+2026-05-05 17:20:58.837 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainers
+2026-05-05 17:20:58.841 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainings
+2026-05-05 17:20:58.842 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Storage initialized. Users: 2, Trainees: 1, Trainers: 1, Trainings: 1, Types: 3
+2026-05-05 17:20:58.845 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: non-existent.json
+2026-05-05 17:20:58.846 [main] WARN  com.dimazak.gym.storage.StorageInitializer - File 'non-existent.json' not found. Starting with empty storage.
+2026-05-05 17:20:58.849 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: initial-data.json
+2026-05-05 17:20:58.853 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 3 training types
+2026-05-05 17:20:58.855 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 2 users
+2026-05-05 17:20:58.857 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainees
+2026-05-05 17:20:58.859 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainers
+2026-05-05 17:20:58.861 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainings
+2026-05-05 17:20:58.861 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Storage initialized. Users: 2, Trainees: 1, Trainers: 1, Trainings: 1, Types: 3
+2026-05-05 17:20:58.868 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Saved training with id: 5
+2026-05-05 17:20:58.870 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding training by id: 1
+2026-05-05 17:20:58.873 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding training by id: 99
+2026-05-05 17:20:58.876 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding all trainings
+2026-05-05 17:20:58.879 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Saved training with id: 1
+2026-05-05 17:20:58.923 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith
+2026-05-05 17:20:58.931 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith1
+2026-05-05 17:20:58.938 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith2
+2026-05-05 17:20:58.944 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Saved trainer with id: 5
+2026-05-05 17:20:58.946 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding trainer by id: 99
+2026-05-05 17:20:58.948 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding trainer by id: 1
+2026-05-05 17:20:58.951 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding all trainers
+2026-05-05 17:20:58.954 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Saved trainer with id: 1
+2026-05-05 17:20:58.959 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Deleted trainee with id: 1
+2026-05-05 17:20:58.962 [main] WARN  com.dimazak.gym.dao.TraineeDao - Attempted to delete non-existent trainee with id: 99
+2026-05-05 17:20:58.964 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 5
+2026-05-05 17:20:58.966 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 99
+2026-05-05 17:20:58.968 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 1
+2026-05-05 17:20:58.970 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding all trainees
+2026-05-05 17:20:58.973 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 1
+2026-05-05 17:20:59.056 [main] INFO  com.dimazak.gym.service.TraineeService - Creating trainee profile for: John Doe
+2026-05-05 17:20:59.057 [main] INFO  com.dimazak.gym.service.TraineeService - User created with username: John.Doe
+2026-05-05 17:20:59.058 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee profile created with id: 1
+2026-05-05 17:20:59.065 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 99
+2026-05-05 17:20:59.066 [main] ERROR com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:20:59.070 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 99
+2026-05-05 17:20:59.071 [main] ERROR com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:20:59.076 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 1
+2026-05-05 17:20:59.077 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee deleted successfully with id: 1
+2026-05-05 17:20:59.082 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 1
+2026-05-05 17:20:59.089 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 1
+2026-05-05 17:20:59.089 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee updated successfully with id: 1
+2026-05-05 17:20:59.093 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 99
+2026-05-05 17:20:59.093 [main] WARN  com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:20:59.098 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding user by id: 1
+2026-05-05 17:20:59.100 [main] WARN  com.dimazak.gym.dao.UserDao - Attempted to delete non-existent user with id: 99
+2026-05-05 17:20:59.102 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 5
+2026-05-05 17:20:59.104 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding user by id: 99
+2026-05-05 17:20:59.106 [main] DEBUG com.dimazak.gym.dao.UserDao - Deleted user with id: 1
+2026-05-05 17:20:59.108 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding all users
+2026-05-05 17:20:59.110 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 1
+2026-05-05 17:20:59.115 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:20:59.116 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:20:59.120 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:20:59.122 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:20:59.205 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainer
+2026-05-05 17:20:59.212 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainee id=1
+2026-05-05 17:20:59.218 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating training
+2026-05-05 17:20:59.223 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainer id=1
+2026-05-05 17:20:59.228 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: deleting trainee id=1
+2026-05-05 17:20:59.234 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting training id=1
+2026-05-05 17:20:59.239 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainee
+2026-05-05 17:20:59.243 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainee id=1
+2026-05-05 17:20:59.247 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainer id=1
+2026-05-05 17:20:59.285 [main] INFO  com.dimazak.gym.service.TrainerService - Selecting trainer with id: 99
+2026-05-05 17:20:59.285 [main] WARN  com.dimazak.gym.service.TrainerService - Trainer not found with id: 99
+2026-05-05 17:20:59.291 [main] INFO  com.dimazak.gym.service.TrainerService - Updating trainer with id: 99
+2026-05-05 17:20:59.292 [main] ERROR com.dimazak.gym.service.TrainerService - Trainer not found with id: 99
+2026-05-05 17:20:59.298 [main] INFO  com.dimazak.gym.service.TrainerService - Selecting trainer with id: 1
+2026-05-05 17:20:59.305 [main] INFO  com.dimazak.gym.service.TrainerService - Creating trainer profile for: Jane Doe
+2026-05-05 17:20:59.306 [main] INFO  com.dimazak.gym.service.TrainerService - User created with username: Jane.Doe
+2026-05-05 17:20:59.307 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer profile created with id: 1
+2026-05-05 17:20:59.314 [main] INFO  com.dimazak.gym.service.TrainerService - Updating trainer with id: 1
+2026-05-05 17:20:59.314 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer updated successfully with id: 1
+2026-05-05 17:21:32.634 [main] INFO  com.dimazak.gym.service.TrainingService - Selecting training with id: 1
+2026-05-05 17:21:32.734 [main] INFO  com.dimazak.gym.service.TrainingService - Selecting training with id: 99
+2026-05-05 17:21:32.734 [main] WARN  com.dimazak.gym.service.TrainingService - Training not found with id: 99
+2026-05-05 17:21:32.746 [main] INFO  com.dimazak.gym.service.TrainingService - Creating training 'Cardio Session' for traineeId: 1, trainerId: 1
+2026-05-05 17:21:32.748 [main] INFO  com.dimazak.gym.service.TrainingService - Training created with id: 1
+2026-05-05 17:21:32.894 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: initial-data.json
+2026-05-05 17:21:34.019 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 3 training types
+2026-05-05 17:21:34.034 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 2 users
+2026-05-05 17:21:34.045 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainees
+2026-05-05 17:21:34.047 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainers
+2026-05-05 17:21:34.054 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainings
+2026-05-05 17:21:34.055 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Storage initialized. Users: 2, Trainees: 1, Trainers: 1, Trainings: 1, Types: 3
+2026-05-05 17:21:34.063 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: non-existent.json
+2026-05-05 17:21:34.064 [main] WARN  com.dimazak.gym.storage.StorageInitializer - File 'non-existent.json' not found. Starting with empty storage.
+2026-05-05 17:21:34.068 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: initial-data.json
+2026-05-05 17:21:34.074 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 3 training types
+2026-05-05 17:21:34.077 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 2 users
+2026-05-05 17:21:34.081 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainees
+2026-05-05 17:21:34.083 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainers
+2026-05-05 17:21:34.086 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainings
+2026-05-05 17:21:34.086 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Storage initialized. Users: 2, Trainees: 1, Trainers: 1, Trainings: 1, Types: 3
+2026-05-05 17:21:34.094 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Saved training with id: 5
+2026-05-05 17:21:34.098 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding training by id: 1
+2026-05-05 17:21:34.101 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding training by id: 99
+2026-05-05 17:21:34.104 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding all trainings
+2026-05-05 17:21:34.108 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Saved training with id: 1
+2026-05-05 17:21:34.159 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith
+2026-05-05 17:21:34.170 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith1
+2026-05-05 17:21:34.177 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith2
+2026-05-05 17:21:34.184 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Saved trainer with id: 5
+2026-05-05 17:21:34.186 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding trainer by id: 99
+2026-05-05 17:21:34.189 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding trainer by id: 1
+2026-05-05 17:21:34.192 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding all trainers
+2026-05-05 17:21:34.194 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Saved trainer with id: 1
+2026-05-05 17:21:34.202 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Deleted trainee with id: 1
+2026-05-05 17:21:34.207 [main] WARN  com.dimazak.gym.dao.TraineeDao - Attempted to delete non-existent trainee with id: 99
+2026-05-05 17:21:34.210 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 5
+2026-05-05 17:21:34.213 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 99
+2026-05-05 17:21:34.216 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 1
+2026-05-05 17:21:34.219 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding all trainees
+2026-05-05 17:21:34.223 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 1
+2026-05-05 17:21:34.349 [main] INFO  com.dimazak.gym.service.TraineeService - Creating trainee profile for: John Doe
+2026-05-05 17:21:34.350 [main] INFO  com.dimazak.gym.service.TraineeService - User created with username: John.Doe
+2026-05-05 17:21:34.351 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee profile created with id: 1
+2026-05-05 17:21:34.363 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 99
+2026-05-05 17:21:34.365 [main] ERROR com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:21:34.372 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 99
+2026-05-05 17:21:34.373 [main] ERROR com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:21:34.379 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 1
+2026-05-05 17:21:34.380 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee deleted successfully with id: 1
+2026-05-05 17:21:34.386 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 1
+2026-05-05 17:21:34.391 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 1
+2026-05-05 17:21:34.391 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee updated successfully with id: 1
+2026-05-05 17:21:34.397 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 99
+2026-05-05 17:21:34.398 [main] WARN  com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:21:34.403 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding user by id: 1
+2026-05-05 17:21:34.405 [main] WARN  com.dimazak.gym.dao.UserDao - Attempted to delete non-existent user with id: 99
+2026-05-05 17:21:34.407 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 5
+2026-05-05 17:21:34.409 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding user by id: 99
+2026-05-05 17:21:34.411 [main] DEBUG com.dimazak.gym.dao.UserDao - Deleted user with id: 1
+2026-05-05 17:21:34.413 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding all users
+2026-05-05 17:21:34.415 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 1
+2026-05-05 17:21:34.420 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:21:34.421 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:21:34.427 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:21:34.431 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:21:34.557 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainer
+2026-05-05 17:21:34.568 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainee id=1
+2026-05-05 17:21:34.576 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating training
+2026-05-05 17:21:34.581 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainer id=1
+2026-05-05 17:21:34.587 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: deleting trainee id=1
+2026-05-05 17:21:34.593 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting training id=1
+2026-05-05 17:21:34.598 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainee
+2026-05-05 17:21:34.604 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainee id=1
+2026-05-05 17:21:34.610 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainer id=1
+2026-05-05 17:21:34.650 [main] INFO  com.dimazak.gym.service.TrainerService - Selecting trainer with id: 99
+2026-05-05 17:21:34.651 [main] WARN  com.dimazak.gym.service.TrainerService - Trainer not found with id: 99
+2026-05-05 17:21:34.656 [main] INFO  com.dimazak.gym.service.TrainerService - Updating trainer with id: 99
+2026-05-05 17:21:34.658 [main] ERROR com.dimazak.gym.service.TrainerService - Trainer not found with id: 99
+2026-05-05 17:21:34.663 [main] INFO  com.dimazak.gym.service.TrainerService - Selecting trainer with id: 1
+2026-05-05 17:21:34.673 [main] INFO  com.dimazak.gym.service.TrainerService - Creating trainer profile for: Jane Doe
+2026-05-05 17:21:34.674 [main] INFO  com.dimazak.gym.service.TrainerService - User created with username: Jane.Doe
+2026-05-05 17:21:34.675 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer profile created with id: 1
+2026-05-05 17:21:34.682 [main] INFO  com.dimazak.gym.service.TrainerService - Updating trainer with id: 1
+2026-05-05 17:21:34.683 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer updated successfully with id: 1
+2026-05-05 17:22:31.525 [main] INFO  com.dimazak.gym.service.TrainingService - Selecting training with id: 1
+2026-05-05 17:22:31.634 [main] INFO  com.dimazak.gym.service.TrainingService - Selecting training with id: 99
+2026-05-05 17:22:31.635 [main] WARN  com.dimazak.gym.service.TrainingService - Training not found with id: 99
+2026-05-05 17:22:31.647 [main] INFO  com.dimazak.gym.service.TrainingService - Creating training 'Cardio Session' for traineeId: 1, trainerId: 1
+2026-05-05 17:22:31.649 [main] INFO  com.dimazak.gym.service.TrainingService - Training created with id: 1
+2026-05-05 17:22:31.794 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: initial-data.json
+2026-05-05 17:22:32.977 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 3 training types
+2026-05-05 17:22:32.993 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 2 users
+2026-05-05 17:22:33.006 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainees
+2026-05-05 17:22:33.009 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainers
+2026-05-05 17:22:33.017 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainings
+2026-05-05 17:22:33.017 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Storage initialized. Users: 2, Trainees: 1, Trainers: 1, Trainings: 1, Types: 3
+2026-05-05 17:22:33.024 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: non-existent.json
+2026-05-05 17:22:33.025 [main] WARN  com.dimazak.gym.storage.StorageInitializer - File 'non-existent.json' not found. Starting with empty storage.
+2026-05-05 17:22:33.030 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: initial-data.json
+2026-05-05 17:22:33.036 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 3 training types
+2026-05-05 17:22:33.039 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 2 users
+2026-05-05 17:22:33.041 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainees
+2026-05-05 17:22:33.043 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainers
+2026-05-05 17:22:33.046 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainings
+2026-05-05 17:22:33.046 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Storage initialized. Users: 2, Trainees: 1, Trainers: 1, Trainings: 1, Types: 3
+2026-05-05 17:22:33.053 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Saved training with id: 5
+2026-05-05 17:22:33.058 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding training by id: 1
+2026-05-05 17:22:33.062 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding training by id: 99
+2026-05-05 17:22:33.065 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding all trainings
+2026-05-05 17:22:33.068 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Saved training with id: 1
+2026-05-05 17:22:33.120 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith
+2026-05-05 17:22:33.130 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith1
+2026-05-05 17:22:33.139 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith2
+2026-05-05 17:22:33.146 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Saved trainer with id: 5
+2026-05-05 17:22:33.151 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding trainer by id: 99
+2026-05-05 17:22:33.154 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding trainer by id: 1
+2026-05-05 17:22:33.157 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding all trainers
+2026-05-05 17:22:33.161 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Saved trainer with id: 1
+2026-05-05 17:22:33.169 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Deleted trainee with id: 1
+2026-05-05 17:22:33.172 [main] WARN  com.dimazak.gym.dao.TraineeDao - Attempted to delete non-existent trainee with id: 99
+2026-05-05 17:22:33.176 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 5
+2026-05-05 17:22:33.178 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 99
+2026-05-05 17:22:33.181 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 1
+2026-05-05 17:22:33.183 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding all trainees
+2026-05-05 17:22:33.187 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 1
+2026-05-05 17:22:33.310 [main] INFO  com.dimazak.gym.service.TraineeService - Creating trainee profile for: John Doe
+2026-05-05 17:22:33.311 [main] INFO  com.dimazak.gym.service.TraineeService - User created with username: John.Doe
+2026-05-05 17:22:33.312 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee profile created with id: 1
+2026-05-05 17:22:33.323 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 99
+2026-05-05 17:22:33.325 [main] ERROR com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:22:33.332 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 99
+2026-05-05 17:22:33.334 [main] ERROR com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:22:33.339 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 1
+2026-05-05 17:22:33.340 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee deleted successfully with id: 1
+2026-05-05 17:22:33.347 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 1
+2026-05-05 17:22:33.355 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 1
+2026-05-05 17:22:33.356 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee updated successfully with id: 1
+2026-05-05 17:22:33.363 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 99
+2026-05-05 17:22:33.364 [main] WARN  com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:22:33.370 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding user by id: 1
+2026-05-05 17:22:33.372 [main] WARN  com.dimazak.gym.dao.UserDao - Attempted to delete non-existent user with id: 99
+2026-05-05 17:22:33.374 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 5
+2026-05-05 17:22:33.377 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding user by id: 99
+2026-05-05 17:22:33.379 [main] DEBUG com.dimazak.gym.dao.UserDao - Deleted user with id: 1
+2026-05-05 17:22:33.381 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding all users
+2026-05-05 17:22:33.384 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 1
+2026-05-05 17:22:33.395 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:22:33.397 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:22:33.403 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:22:33.406 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:22:33.530 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainer
+2026-05-05 17:22:33.537 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainee id=1
+2026-05-05 17:22:33.544 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating training
+2026-05-05 17:22:33.551 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainer id=1
+2026-05-05 17:22:33.555 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: deleting trainee id=1
+2026-05-05 17:22:33.561 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting training id=1
+2026-05-05 17:22:33.566 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainee
+2026-05-05 17:22:33.570 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainee id=1
+2026-05-05 17:22:33.576 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainer id=1
+2026-05-05 17:22:33.624 [main] INFO  com.dimazak.gym.service.TrainerService - Selecting trainer with id: 99
+2026-05-05 17:22:33.625 [main] WARN  com.dimazak.gym.service.TrainerService - Trainer not found with id: 99
+2026-05-05 17:22:33.631 [main] INFO  com.dimazak.gym.service.TrainerService - Updating trainer with id: 99
+2026-05-05 17:22:33.632 [main] ERROR com.dimazak.gym.service.TrainerService - Trainer not found with id: 99
+2026-05-05 17:22:33.637 [main] INFO  com.dimazak.gym.service.TrainerService - Selecting trainer with id: 1
+2026-05-05 17:22:33.646 [main] INFO  com.dimazak.gym.service.TrainerService - Creating trainer profile for: Jane Doe
+2026-05-05 17:22:33.647 [main] INFO  com.dimazak.gym.service.TrainerService - User created with username: Jane.Doe
+2026-05-05 17:22:33.647 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer profile created with id: 1
+2026-05-05 17:22:33.654 [main] INFO  com.dimazak.gym.service.TrainerService - Updating trainer with id: 1
+2026-05-05 17:22:33.655 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer updated successfully with id: 1
+2026-05-05 17:38:56.570 [main] INFO  com.dimazak.gym.GymCrmApp - Starting Gym CRM Application
+2026-05-05 17:38:57.201 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: initial-data.json
+2026-05-05 17:38:57.448 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 3 training types
+2026-05-05 17:38:57.456 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 2 users
+2026-05-05 17:38:57.462 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainees
+2026-05-05 17:38:57.463 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainers
+2026-05-05 17:38:57.469 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainings
+2026-05-05 17:38:57.469 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Storage initialized. Users: 2, Trainees: 1, Trainers: 1, Trainings: 1, Types: 3
+2026-05-05 17:38:57.488 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainee
+2026-05-05 17:38:57.488 [main] INFO  com.dimazak.gym.service.TraineeService - Creating trainee profile for: Alice Johnson
+2026-05-05 17:38:57.489 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding all users
+2026-05-05 17:38:57.490 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: Alice.Johnson
+2026-05-05 17:38:57.512 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:38:57.512 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 3
+2026-05-05 17:38:57.513 [main] INFO  com.dimazak.gym.service.TraineeService - User created with username: Alice.Johnson
+2026-05-05 17:38:57.513 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 2
+2026-05-05 17:38:57.513 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee profile created with id: 2
+2026-05-05 17:38:57.513 [main] INFO  com.dimazak.gym.GymCrmApp - Created trainee: Trainee{id=2, dateOfBirth=1998-03-25, address='456 Elm St', userId=3}
+2026-05-05 17:38:57.515 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainee
+2026-05-05 17:38:57.516 [main] INFO  com.dimazak.gym.service.TraineeService - Creating trainee profile for: John Smith
+2026-05-05 17:38:57.516 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding all users
+2026-05-05 17:38:57.517 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith1
+2026-05-05 17:38:57.518 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:38:57.518 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 4
+2026-05-05 17:38:57.518 [main] INFO  com.dimazak.gym.service.TraineeService - User created with username: John.Smith1
+2026-05-05 17:38:57.518 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 3
+2026-05-05 17:38:57.518 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee profile created with id: 3
+2026-05-05 17:38:57.518 [main] INFO  com.dimazak.gym.GymCrmApp - Created trainee (duplicate name test): Trainee{id=3, dateOfBirth=2000-01-01, address='789 Oak Ave', userId=4}
+2026-05-05 17:38:57.519 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainer
+2026-05-05 17:38:57.519 [main] INFO  com.dimazak.gym.service.TrainerService - Creating trainer profile for: Bob Williams
+2026-05-05 17:38:57.519 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding all users
+2026-05-05 17:38:57.519 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: Bob.Williams
+2026-05-05 17:38:57.520 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:38:57.520 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 5
+2026-05-05 17:38:57.520 [main] INFO  com.dimazak.gym.service.TrainerService - User created with username: Bob.Williams
+2026-05-05 17:38:57.520 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Saved trainer with id: 2
+2026-05-05 17:38:57.520 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer profile created with id: 2
+2026-05-05 17:38:57.520 [main] INFO  com.dimazak.gym.GymCrmApp - Created trainer: Trainer{id=2, specialization=2, userId=5}
+2026-05-05 17:38:57.523 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating training
+2026-05-05 17:38:57.523 [main] INFO  com.dimazak.gym.service.TrainingService - Creating training 'Evening Strength' for traineeId: 2, trainerId: 2
+2026-05-05 17:38:57.523 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Saved training with id: 2
+2026-05-05 17:38:57.523 [main] INFO  com.dimazak.gym.service.TrainingService - Training created with id: 2
+2026-05-05 17:38:57.523 [main] INFO  com.dimazak.gym.GymCrmApp - Created training: Training{id=2, traineeId=2, trainerId=2, trainingName='Evening Strength', trainingDate=2024-04-01, duration=90min}
+2026-05-05 17:38:57.525 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainee id=2
+2026-05-05 17:38:57.526 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 2
+2026-05-05 17:38:57.526 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 2
+2026-05-05 17:38:57.526 [main] INFO  com.dimazak.gym.GymCrmApp - Selected trainee: Trainee{id=2, dateOfBirth=1998-03-25, address='456 Elm St', userId=3}
+2026-05-05 17:38:57.527 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainee id=2
+2026-05-05 17:38:57.527 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 2
+2026-05-05 17:38:57.527 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 2
+2026-05-05 17:38:57.527 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 2
+2026-05-05 17:38:57.528 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee updated successfully with id: 2
+2026-05-05 17:38:57.528 [main] INFO  com.dimazak.gym.GymCrmApp - Updated trainee: Trainee{id=2, dateOfBirth=1998-03-25, address='999 New Address', userId=3}
+2026-05-05 17:38:57.528 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: deleting trainee id=2
+2026-05-05 17:38:57.528 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 2
+2026-05-05 17:38:57.528 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 2
+2026-05-05 17:38:57.528 [main] DEBUG com.dimazak.gym.dao.UserDao - Deleted user with id: 3
+2026-05-05 17:38:57.528 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Deleted trainee with id: 2
+2026-05-05 17:38:57.528 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee deleted successfully with id: 2
+2026-05-05 17:38:57.528 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainee id=2
+2026-05-05 17:38:57.528 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 2
+2026-05-05 17:38:57.528 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 2
+2026-05-05 17:38:57.528 [main] WARN  com.dimazak.gym.service.TraineeService - Trainee not found with id: 2
+2026-05-05 17:38:57.528 [main] INFO  com.dimazak.gym.GymCrmApp - Deleted trainee, exists now: false
+2026-05-05 17:38:57.531 [main] INFO  com.dimazak.gym.GymCrmApp - Gym CRM Application finished
+2026-05-05 17:42:02.926 [main] INFO  com.dimazak.gym.service.TrainingService - Selecting training with id: 1
+2026-05-05 17:42:03.058 [main] INFO  com.dimazak.gym.service.TrainingService - Selecting training with id: 99
+2026-05-05 17:42:03.060 [main] WARN  com.dimazak.gym.service.TrainingService - Training not found with id: 99
+2026-05-05 17:42:03.075 [main] INFO  com.dimazak.gym.service.TrainingService - Creating training 'Cardio Session' for traineeId: 1, trainerId: 1
+2026-05-05 17:42:03.076 [main] INFO  com.dimazak.gym.service.TrainingService - Training created with id: 1
+2026-05-05 17:42:03.303 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: initial-data.json
+2026-05-05 17:42:04.772 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 3 training types
+2026-05-05 17:42:04.797 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 2 users
+2026-05-05 17:42:04.812 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainees
+2026-05-05 17:42:04.815 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainers
+2026-05-05 17:42:04.824 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainings
+2026-05-05 17:42:04.824 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Storage initialized. Users: 2, Trainees: 1, Trainers: 1, Trainings: 1, Types: 3
+2026-05-05 17:42:04.832 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: non-existent.json
+2026-05-05 17:42:04.833 [main] WARN  com.dimazak.gym.storage.StorageInitializer - File 'non-existent.json' not found. Starting with empty storage.
+2026-05-05 17:42:04.837 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: initial-data.json
+2026-05-05 17:42:04.843 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 3 training types
+2026-05-05 17:42:04.846 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 2 users
+2026-05-05 17:42:04.849 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainees
+2026-05-05 17:42:04.852 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainers
+2026-05-05 17:42:04.855 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainings
+2026-05-05 17:42:04.856 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Storage initialized. Users: 2, Trainees: 1, Trainers: 1, Trainings: 1, Types: 3
+2026-05-05 17:42:04.863 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Saved training with id: 5
+2026-05-05 17:42:04.867 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding training by id: 1
+2026-05-05 17:42:04.870 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding training by id: 99
+2026-05-05 17:42:04.873 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Finding all trainings
+2026-05-05 17:42:04.877 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Saved training with id: 1
+2026-05-05 17:42:04.947 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith
+2026-05-05 17:42:04.959 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith1
+2026-05-05 17:42:04.968 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith2
+2026-05-05 17:42:04.976 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Saved trainer with id: 5
+2026-05-05 17:42:04.980 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding trainer by id: 99
+2026-05-05 17:42:04.983 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding trainer by id: 1
+2026-05-05 17:42:04.986 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Finding all trainers
+2026-05-05 17:42:04.989 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Saved trainer with id: 1
+2026-05-05 17:42:04.997 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Deleted trainee with id: 1
+2026-05-05 17:42:05.001 [main] WARN  com.dimazak.gym.dao.TraineeDao - Attempted to delete non-existent trainee with id: 99
+2026-05-05 17:42:05.005 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 5
+2026-05-05 17:42:05.008 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 99
+2026-05-05 17:42:05.012 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 1
+2026-05-05 17:42:05.014 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding all trainees
+2026-05-05 17:42:05.018 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 1
+2026-05-05 17:42:05.163 [main] INFO  com.dimazak.gym.service.TraineeService - Creating trainee profile for: John Doe
+2026-05-05 17:42:05.165 [main] INFO  com.dimazak.gym.service.TraineeService - User created with username: John.Doe
+2026-05-05 17:42:05.166 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee profile created with id: 1
+2026-05-05 17:42:05.181 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 99
+2026-05-05 17:42:05.183 [main] ERROR com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:42:05.192 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 99
+2026-05-05 17:42:05.194 [main] ERROR com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:42:05.201 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 1
+2026-05-05 17:42:05.203 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee deleted successfully with id: 1
+2026-05-05 17:42:05.211 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 1
+2026-05-05 17:42:05.220 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 1
+2026-05-05 17:42:05.221 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee updated successfully with id: 1
+2026-05-05 17:42:05.229 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 99
+2026-05-05 17:42:05.230 [main] WARN  com.dimazak.gym.service.TraineeService - Trainee not found with id: 99
+2026-05-05 17:42:05.236 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding user by id: 1
+2026-05-05 17:42:05.239 [main] WARN  com.dimazak.gym.dao.UserDao - Attempted to delete non-existent user with id: 99
+2026-05-05 17:42:05.242 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 5
+2026-05-05 17:42:05.245 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding user by id: 99
+2026-05-05 17:42:05.248 [main] DEBUG com.dimazak.gym.dao.UserDao - Deleted user with id: 1
+2026-05-05 17:42:05.251 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding all users
+2026-05-05 17:42:05.254 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 1
+2026-05-05 17:42:05.266 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:42:05.267 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:42:05.271 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:42:05.274 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:42:05.421 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainer
+2026-05-05 17:42:05.429 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainee id=1
+2026-05-05 17:42:05.437 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating training
+2026-05-05 17:42:05.443 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainer id=1
+2026-05-05 17:42:05.448 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: deleting trainee id=1
+2026-05-05 17:42:05.455 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting training id=1
+2026-05-05 17:42:05.461 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainee
+2026-05-05 17:42:05.468 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainee id=1
+2026-05-05 17:42:05.473 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainer id=1
+2026-05-05 17:42:05.521 [main] INFO  com.dimazak.gym.service.TrainerService - Selecting trainer with id: 99
+2026-05-05 17:42:05.522 [main] WARN  com.dimazak.gym.service.TrainerService - Trainer not found with id: 99
+2026-05-05 17:42:05.534 [main] INFO  com.dimazak.gym.service.TrainerService - Updating trainer with id: 99
+2026-05-05 17:42:05.536 [main] ERROR com.dimazak.gym.service.TrainerService - Trainer not found with id: 99
+2026-05-05 17:42:05.544 [main] INFO  com.dimazak.gym.service.TrainerService - Selecting trainer with id: 1
+2026-05-05 17:42:05.554 [main] INFO  com.dimazak.gym.service.TrainerService - Creating trainer profile for: Jane Doe
+2026-05-05 17:42:05.555 [main] INFO  com.dimazak.gym.service.TrainerService - User created with username: Jane.Doe
+2026-05-05 17:42:05.556 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer profile created with id: 1
+2026-05-05 17:42:05.566 [main] INFO  com.dimazak.gym.service.TrainerService - Updating trainer with id: 1
+2026-05-05 17:42:05.567 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer updated successfully with id: 1
+2026-05-05 17:50:59.264 [main] INFO  com.dimazak.gym.GymCrmApp - Starting Gym CRM Application
+2026-05-05 17:50:59.902 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Initializing storage from file: initial-data.json
+2026-05-05 17:51:00.196 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 3 training types
+2026-05-05 17:51:00.205 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 2 users
+2026-05-05 17:51:00.211 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainees
+2026-05-05 17:51:00.213 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainers
+2026-05-05 17:51:00.219 [main] DEBUG com.dimazak.gym.storage.StorageInitializer - Loaded 1 trainings
+2026-05-05 17:51:00.220 [main] INFO  com.dimazak.gym.storage.StorageInitializer - Storage initialized. Users: 2, Trainees: 1, Trainers: 1, Trainings: 1, Types: 3
+2026-05-05 17:51:00.240 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainee
+2026-05-05 17:51:00.241 [main] INFO  com.dimazak.gym.service.TraineeService - Creating trainee profile for: Alice Johnson
+2026-05-05 17:51:00.241 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding all users
+2026-05-05 17:51:00.242 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: Alice.Johnson
+2026-05-05 17:51:00.243 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:51:00.243 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 3
+2026-05-05 17:51:00.244 [main] INFO  com.dimazak.gym.service.TraineeService - User created with username: Alice.Johnson
+2026-05-05 17:51:00.244 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 2
+2026-05-05 17:51:00.244 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee profile created with id: 2
+2026-05-05 17:51:00.244 [main] INFO  com.dimazak.gym.GymCrmApp - Created trainee: Trainee{id=2, dateOfBirth=1998-03-25, address='456 Elm St', userId=3}
+2026-05-05 17:51:00.247 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainee
+2026-05-05 17:51:00.247 [main] INFO  com.dimazak.gym.service.TraineeService - Creating trainee profile for: John Smith
+2026-05-05 17:51:00.247 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding all users
+2026-05-05 17:51:00.248 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: John.Smith1
+2026-05-05 17:51:00.248 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:51:00.249 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 4
+2026-05-05 17:51:00.249 [main] INFO  com.dimazak.gym.service.TraineeService - User created with username: John.Smith1
+2026-05-05 17:51:00.249 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 3
+2026-05-05 17:51:00.249 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee profile created with id: 3
+2026-05-05 17:51:00.249 [main] INFO  com.dimazak.gym.GymCrmApp - Created trainee (duplicate name test): Trainee{id=3, dateOfBirth=2000-01-01, address='789 Oak Ave', userId=4}
+2026-05-05 17:51:00.249 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating trainer
+2026-05-05 17:51:00.249 [main] INFO  com.dimazak.gym.service.TrainerService - Creating trainer profile for: Bob Williams
+2026-05-05 17:51:00.249 [main] DEBUG com.dimazak.gym.dao.UserDao - Finding all users
+2026-05-05 17:51:00.249 [main] INFO  com.dimazak.gym.util.UsernameGenerator - Generated username: Bob.Williams
+2026-05-05 17:51:00.250 [main] DEBUG com.dimazak.gym.util.PasswordGenerator - Password generated successfully (length: 10)
+2026-05-05 17:51:00.250 [main] DEBUG com.dimazak.gym.dao.UserDao - Saved user with id: 5
+2026-05-05 17:51:00.250 [main] INFO  com.dimazak.gym.service.TrainerService - User created with username: Bob.Williams
+2026-05-05 17:51:00.250 [main] DEBUG com.dimazak.gym.dao.TrainerDao - Saved trainer with id: 2
+2026-05-05 17:51:00.250 [main] INFO  com.dimazak.gym.service.TrainerService - Trainer profile created with id: 2
+2026-05-05 17:51:00.250 [main] INFO  com.dimazak.gym.GymCrmApp - Created trainer: Trainer{id=2, specialization=2, userId=5}
+2026-05-05 17:51:00.252 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: creating training
+2026-05-05 17:51:00.252 [main] INFO  com.dimazak.gym.service.TrainingService - Creating training 'Evening Strength' for traineeId: 2, trainerId: 2
+2026-05-05 17:51:00.252 [main] DEBUG com.dimazak.gym.dao.TrainingDao - Saved training with id: 2
+2026-05-05 17:51:00.253 [main] INFO  com.dimazak.gym.service.TrainingService - Training created with id: 2
+2026-05-05 17:51:00.253 [main] INFO  com.dimazak.gym.GymCrmApp - Created training: Training{id=2, traineeId=2, trainerId=2, trainingName='Evening Strength', trainingDate=2024-04-01, duration=90min}
+2026-05-05 17:51:00.256 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainee id=2
+2026-05-05 17:51:00.256 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 2
+2026-05-05 17:51:00.256 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 2
+2026-05-05 17:51:00.257 [main] INFO  com.dimazak.gym.GymCrmApp - Selected trainee: Trainee{id=2, dateOfBirth=1998-03-25, address='456 Elm St', userId=3}
+2026-05-05 17:51:00.257 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: updating trainee id=2
+2026-05-05 17:51:00.257 [main] INFO  com.dimazak.gym.service.TraineeService - Updating trainee with id: 2
+2026-05-05 17:51:00.257 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 2
+2026-05-05 17:51:00.258 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Saved trainee with id: 2
+2026-05-05 17:51:00.259 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee updated successfully with id: 2
+2026-05-05 17:51:00.259 [main] INFO  com.dimazak.gym.GymCrmApp - Updated trainee: Trainee{id=2, dateOfBirth=1998-03-25, address='999 New Address', userId=3}
+2026-05-05 17:51:00.259 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: deleting trainee id=2
+2026-05-05 17:51:00.259 [main] INFO  com.dimazak.gym.service.TraineeService - Deleting trainee with id: 2
+2026-05-05 17:51:00.259 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 2
+2026-05-05 17:51:00.259 [main] DEBUG com.dimazak.gym.dao.UserDao - Deleted user with id: 3
+2026-05-05 17:51:00.260 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Deleted trainee with id: 2
+2026-05-05 17:51:00.260 [main] INFO  com.dimazak.gym.service.TraineeService - Trainee deleted successfully with id: 2
+2026-05-05 17:51:00.260 [main] INFO  com.dimazak.gym.facade.GymFacade - Facade: selecting trainee id=2
+2026-05-05 17:51:00.260 [main] INFO  com.dimazak.gym.service.TraineeService - Selecting trainee with id: 2
+2026-05-05 17:51:00.260 [main] DEBUG com.dimazak.gym.dao.TraineeDao - Finding trainee by id: 2
+2026-05-05 17:51:00.260 [main] WARN  com.dimazak.gym.service.TraineeService - Trainee not found with id: 2
+2026-05-05 17:51:00.260 [main] INFO  com.dimazak.gym.GymCrmApp - Deleted trainee, exists now: false
+2026-05-05 17:51:00.263 [main] INFO  com.dimazak.gym.GymCrmApp - Gym CRM Application finished

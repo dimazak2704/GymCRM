@@ -4,7 +4,6 @@ import com.dimazak.gym.dao.TrainingDao;
 import com.dimazak.gym.model.Training;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,17 +14,17 @@ public class TrainingService {
 
     private static final Logger log = LoggerFactory.getLogger(TrainingService.class);
 
-    private TrainingDao trainingDao;
+    private final TrainingDao trainingDao;
 
-    @Autowired
-    public void setTrainingDao(TrainingDao trainingDao) {
+    public TrainingService(TrainingDao trainingDao) {
         this.trainingDao = trainingDao;
     }
 
     public Training createTraining(Long traineeId, Long trainerId, String trainingName,
                                    Long trainingTypeId, LocalDate trainingDate,
                                    int trainingDurationMinutes) {
-        log.info("Creating training '{}' for traineeId: {}, trainerId: {}", trainingName, traineeId, trainerId);
+        log.info("Creating training '{}' for traineeId: {}, trainerId: {}",
+                trainingName, traineeId, trainerId);
 
         Training training = new Training(null, traineeId, trainerId, trainingName,
                 trainingTypeId, trainingDate, trainingDurationMinutes);

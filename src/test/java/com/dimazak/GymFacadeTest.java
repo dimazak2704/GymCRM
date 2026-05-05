@@ -22,6 +22,19 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class GymFacadeTest {
 
+    private static final Long ID = 1L;
+    private static final Long USER_ID = 1L;
+    private static final Long SPECIALIZATION = 1L;
+    private static final Long NEW_SPECIALIZATION = 2L;
+    private static final Long TRAINING_TYPE_ID = 1L;
+    private static final String FIRST_NAME = "A";
+    private static final String LAST_NAME = "B";
+    private static final String ADDRESS = "Addr";
+    private static final String NEW_ADDRESS = "New";
+    private static final String TRAINING_NAME = "Test";
+    private static final LocalDate DATE = LocalDate.of(2024, 1, 1);
+    private static final int DURATION = 60;
+
     @Mock private TraineeService traineeService;
     @Mock private TrainerService trainerService;
     @Mock private TrainingService trainingService;
@@ -31,81 +44,82 @@ class GymFacadeTest {
 
     @Test
     void createTrainee_shouldDelegateToService() {
-        Trainee expected = new Trainee(1L, LocalDate.now(), "Addr", 1L);
-        when(traineeService.createTrainee("A", "B", LocalDate.now(), "Addr", true))
+        Trainee expected = new Trainee(ID, DATE, ADDRESS, USER_ID);
+        when(traineeService.createTrainee(FIRST_NAME, LAST_NAME, DATE, ADDRESS, true))
                 .thenReturn(expected);
 
-        Trainee result = facade.createTrainee("A", "B", LocalDate.now(), "Addr", true);
+        Trainee result = facade.createTrainee(FIRST_NAME, LAST_NAME, DATE, ADDRESS, true);
 
         assertEquals(expected, result);
     }
 
     @Test
     void deleteTrainee_shouldDelegateToService() {
-        facade.deleteTrainee(1L);
-        verify(traineeService).deleteTrainee(1L);
+        facade.deleteTrainee(ID);
+        verify(traineeService).deleteTrainee(ID);
     }
 
     @Test
     void createTrainer_shouldDelegateToService() {
-        Trainer expected = new Trainer(1L, 1L, 1L);
-        when(trainerService.createTrainer("A", "B", 1L, true)).thenReturn(expected);
+        Trainer expected = new Trainer(ID, SPECIALIZATION, USER_ID);
+        when(trainerService.createTrainer(FIRST_NAME, LAST_NAME, SPECIALIZATION, true))
+                .thenReturn(expected);
 
-        Trainer result = facade.createTrainer("A", "B", 1L, true);
+        Trainer result = facade.createTrainer(FIRST_NAME, LAST_NAME, SPECIALIZATION, true);
 
         assertEquals(expected, result);
     }
 
     @Test
     void createTraining_shouldDelegateToService() {
-        Training expected = new Training(1L, 1L, 1L, "Test", 1L, LocalDate.now(), 60);
-        when(trainingService.createTraining(1L, 1L, "Test", 1L, LocalDate.now(), 60))
+        Training expected = new Training(ID, ID, ID, TRAINING_NAME, TRAINING_TYPE_ID, DATE, DURATION);
+        when(trainingService.createTraining(ID, ID, TRAINING_NAME, TRAINING_TYPE_ID, DATE, DURATION))
                 .thenReturn(expected);
 
-        Training result = facade.createTraining(1L, 1L, "Test", 1L, LocalDate.now(), 60);
+        Training result = facade.createTraining(ID, ID, TRAINING_NAME, TRAINING_TYPE_ID, DATE, DURATION);
 
         assertEquals(expected, result);
     }
 
     @Test
     void selectTrainee_shouldDelegateToService() {
-        when(traineeService.selectTrainee(1L)).thenReturn(Optional.empty());
+        when(traineeService.selectTrainee(ID)).thenReturn(Optional.empty());
 
-        assertTrue(facade.selectTrainee(1L).isEmpty());
+        assertTrue(facade.selectTrainee(ID).isEmpty());
     }
 
     @Test
     void selectTrainer_shouldDelegateToService() {
-        Trainer trainer = new Trainer(1L, 1L, 1L);
-        when(trainerService.selectTrainer(1L)).thenReturn(Optional.of(trainer));
+        Trainer trainer = new Trainer(ID, SPECIALIZATION, USER_ID);
+        when(trainerService.selectTrainer(ID)).thenReturn(Optional.of(trainer));
 
-        assertTrue(facade.selectTrainer(1L).isPresent());
+        assertTrue(facade.selectTrainer(ID).isPresent());
     }
 
     @Test
     void selectTraining_shouldDelegateToService() {
-        when(trainingService.selectTraining(1L)).thenReturn(Optional.empty());
+        when(trainingService.selectTraining(ID)).thenReturn(Optional.empty());
 
-        assertTrue(facade.selectTraining(1L).isEmpty());
+        assertTrue(facade.selectTraining(ID).isEmpty());
     }
 
     @Test
     void updateTrainee_shouldDelegateToService() {
-        Trainee expected = new Trainee(1L, LocalDate.now(), "New", 1L);
-        when(traineeService.updateTrainee(1L, LocalDate.now(), "New")).thenReturn(expected);
+        Trainee expected = new Trainee(ID, DATE, NEW_ADDRESS, USER_ID);
+        when(traineeService.updateTrainee(ID, DATE, NEW_ADDRESS)).thenReturn(expected);
 
-        Trainee result = facade.updateTrainee(1L, LocalDate.now(), "New");
+        Trainee result = facade.updateTrainee(ID, DATE, NEW_ADDRESS);
 
-        assertEquals("New", result.getAddress());
+        assertEquals(NEW_ADDRESS, result.getAddress());
     }
 
     @Test
     void updateTrainer_shouldDelegateToService() {
-        Trainer expected = new Trainer(1L, 2L, 1L);
-        when(trainerService.updateTrainer(1L, 2L)).thenReturn(expected);
+        Trainer expected = new Trainer(ID, NEW_SPECIALIZATION, USER_ID);
+        when(trainerService.updateTrainer(ID, NEW_SPECIALIZATION)).thenReturn(expected);
 
-        Trainer result = facade.updateTrainer(1L, 2L);
+        Trainer result = facade.updateTrainer(ID, NEW_SPECIALIZATION);
 
-        assertEquals(2L, result.getSpecialization());
+        assertEquals(NEW_SPECIALIZATION, result.getSpecialization());
     }
 }

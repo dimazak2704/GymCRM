@@ -8,7 +8,6 @@ import com.dimazak.gym.util.PasswordGenerator;
 import com.dimazak.gym.util.UsernameGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,28 +18,18 @@ public class TraineeService {
 
     private static final Logger log = LoggerFactory.getLogger(TraineeService.class);
 
-    private TraineeDao traineeDao;
-    private UserDao userDao;
-    private UsernameGenerator usernameGenerator;
-    private PasswordGenerator passwordGenerator;
+    private final TraineeDao traineeDao;
+    private final UserDao userDao;
+    private final UsernameGenerator usernameGenerator;
+    private final PasswordGenerator passwordGenerator;
 
-    @Autowired
-    public void setTraineeDao(TraineeDao traineeDao) {
+    public TraineeService(TraineeDao traineeDao,
+                          UserDao userDao,
+                          UsernameGenerator usernameGenerator,
+                          PasswordGenerator passwordGenerator) {
         this.traineeDao = traineeDao;
-    }
-
-    @Autowired
-    public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
-    }
-
-    @Autowired
-    public void setUsernameGenerator(UsernameGenerator usernameGenerator) {
         this.usernameGenerator = usernameGenerator;
-    }
-
-    @Autowired
-    public void setPasswordGenerator(PasswordGenerator passwordGenerator) {
         this.passwordGenerator = passwordGenerator;
     }
 
@@ -65,13 +54,12 @@ public class TraineeService {
     public Trainee updateTrainee(Long traineeId, LocalDate dateOfBirth, String address) {
         log.info("Updating trainee with id: {}", traineeId);
 
-        Optional<Trainee> existing = traineeDao.findById(traineeId);
-        if (existing.isEmpty()) {
-            log.error("Trainee not found with id: {}", traineeId);
-            throw new IllegalArgumentException("Trainee not found with id: " + traineeId);
-        }
+        Trainee trainee = traineeDao.findById(traineeId)
+                .orElseThrow(() -> {
+                    log.error("Trainee not found with id: {}", traineeId);
+                    return new IllegalArgumentException("Trainee not found with id: " + traineeId);
+                });
 
-        Trainee trainee = existing.get();
         trainee.setDateOfBirth(dateOfBirth);
         trainee.setAddress(address);
         traineeDao.save(trainee);
@@ -83,13 +71,12 @@ public class TraineeService {
     public void deleteTrainee(Long traineeId) {
         log.info("Deleting trainee with id: {}", traineeId);
 
-        Optional<Trainee> existing = traineeDao.findById(traineeId);
-        if (existing.isEmpty()) {
-            log.error("Trainee not found with id: {}", traineeId);
-            throw new IllegalArgumentException("Trainee not found with id: " + traineeId);
-        }
+        Trainee trainee = traineeDao.findById(traineeId)
+                .orElseThrow(() -> {
+                    log.error("Trainee not found with id: {}", traineeId);
+                    return new IllegalArgumentException("Trainee not found with id: " + traineeId);
+                });
 
-        Trainee trainee = existing.get();
         userDao.deleteById(trainee.getUserId());
         traineeDao.deleteById(traineeId);
 

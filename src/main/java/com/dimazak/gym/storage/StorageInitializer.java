@@ -1,52 +1,74 @@
 package com.dimazak.gym.storage;
 
+import com.dimazak.gym.model.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.dimazak.gym.model.*;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Component
-public class InMemoryStorage {
+public class StorageInitializer {
 
-    private static final Logger log = LoggerFactory.getLogger(InMemoryStorage.class);
+    private static final Logger log = LoggerFactory.getLogger(StorageInitializer.class);
 
-    private final Map<Long, User> userStorage = new ConcurrentHashMap<>();
-    private final Map<Long, Trainee> traineeStorage = new ConcurrentHashMap<>();
-    private final Map<Long, Trainer> trainerStorage = new ConcurrentHashMap<>();
-    private final Map<Long, Training> trainingStorage = new ConcurrentHashMap<>();
-    private final Map<Long, TrainingType> trainingTypeStorage = new ConcurrentHashMap<>();
+    private final Map<Long, User> userStorage;
+    private final Map<Long, Trainee> traineeStorage;
+    private final Map<Long, Trainer> trainerStorage;
+    private final Map<Long, Training> trainingStorage;
+    private final Map<Long, TrainingType> trainingTypeStorage;
 
-    private final AtomicLong userIdSequence = new AtomicLong(0);
-    private final AtomicLong traineeIdSequence = new AtomicLong(0);
-    private final AtomicLong trainerIdSequence = new AtomicLong(0);
-    private final AtomicLong trainingIdSequence = new AtomicLong(0);
-    private final AtomicLong trainingTypeIdSequence = new AtomicLong(0);
+    private final AtomicLong userIdSequence;
+    private final AtomicLong traineeIdSequence;
+    private final AtomicLong trainerIdSequence;
+    private final AtomicLong trainingIdSequence;
+    private final AtomicLong trainingTypeIdSequence;
 
     @Value("${storage.init.file:initial-data.json}")
     private String initFilePath;
 
+    public StorageInitializer(
+            @Qualifier("userStorage") Map<Long, User> userStorage,
+            @Qualifier("traineeStorage") Map<Long, Trainee> traineeStorage,
+            @Qualifier("trainerStorage") Map<Long, Trainer> trainerStorage,
+            @Qualifier("trainingStorage") Map<Long, Training> trainingStorage,
+            @Qualifier("trainingTypeStorage") Map<Long, TrainingType> trainingTypeStorage,
+            @Qualifier("userIdSequence") AtomicLong userIdSequence,
+            @Qualifier("traineeIdSequence") AtomicLong traineeIdSequence,
+            @Qualifier("trainerIdSequence") AtomicLong trainerIdSequence,
+            @Qualifier("trainingIdSequence") AtomicLong trainingIdSequence,
+            @Qualifier("trainingTypeIdSequence") AtomicLong trainingTypeIdSequence) {
+        this.userStorage = userStorage;
+        this.traineeStorage = traineeStorage;
+        this.trainerStorage = trainerStorage;
+        this.trainingStorage = trainingStorage;
+        this.trainingTypeStorage = trainingTypeStorage;
+        this.userIdSequence = userIdSequence;
+        this.traineeIdSequence = traineeIdSequence;
+        this.trainerIdSequence = trainerIdSequence;
+        this.trainingIdSequence = trainingIdSequence;
+        this.trainingTypeIdSequence = trainingTypeIdSequence;
+    }
+
     @PostConstruct
     public void init() {
-        log.info("Initializing in-memory storage from file: {}", initFilePath);
+        log.info("Initializing storage from file: {}", initFilePath);
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
 
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(initFilePath)) {
             if (is == null) {
-                log.warn("Initialization file '{}' not found on classpath. Starting with empty storage.", initFilePath);
+                log.warn("File '{}' not found. Starting with empty storage.", initFilePath);
                 return;
             }
 
@@ -58,7 +80,7 @@ public class InMemoryStorage {
             loadTrainers(mapper, data);
             loadTrainings(mapper, data);
 
-            log.info("Storage initialized successfully. Users: {}, Trainees: {}, Trainers: {}, Trainings: {}, TrainingTypes: {}",
+            log.info("Storage initialized. Users: {}, Trainees: {}, Trainers: {}, Trainings: {}, Types: {}",
                     userStorage.size(), traineeStorage.size(), trainerStorage.size(),
                     trainingStorage.size(), trainingTypeStorage.size());
 
@@ -132,20 +154,4 @@ public class InMemoryStorage {
             sequence.updateAndGet(current -> Math.max(current, id));
         }
     }
-
-    // --- Namespace accessors ---
-
-    public Map<Long, User> getUserStorage() { return userStorage; }
-    public Map<Long, Trainee> getTraineeStorage() { return traineeStorage; }
-    public Map<Long, Trainer> getTrainerStorage() { return trainerStorage; }
-    public Map<Long, Training> getTrainingStorage() { return trainingStorage; }
-    public Map<Long, TrainingType> getTrainingTypeStorage() { return trainingTypeStorage; }
-
-    // --- ID generators ---
-
-    public Long nextUserId() { return userIdSequence.incrementAndGet(); }
-    public Long nextTraineeId() { return traineeIdSequence.incrementAndGet(); }
-    public Long nextTrainerId() { return trainerIdSequence.incrementAndGet(); }
-    public Long nextTrainingId() { return trainingIdSequence.incrementAndGet(); }
-    public Long nextTrainingTypeId() { return trainingTypeIdSequence.incrementAndGet(); }
 }

@@ -1,4 +1,4 @@
-package com.dimazak;
+package com.dimazak.util;
 
 import com.dimazak.gym.util.PasswordGenerator;
 import org.junit.jupiter.api.Test;
@@ -7,13 +7,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PasswordGeneratorTest {
 
+    private static final int EXPECTED_PASSWORD_LENGTH = 10;
+    private static final String ALPHANUMERIC_PATTERN = "[A-Za-z0-9]+";
+
     private final PasswordGenerator passwordGenerator = new PasswordGenerator();
 
     @Test
-    void generatePassword_shouldReturn10Characters() {
+    void generatePassword_shouldReturnCorrectLength() {
         String password = passwordGenerator.generatePassword();
 
-        assertEquals(10, password.length());
+        assertEquals(EXPECTED_PASSWORD_LENGTH, password.length());
     }
 
     @Test
@@ -28,6 +31,6 @@ class PasswordGeneratorTest {
     void generatePassword_shouldContainOnlyAlphanumeric() {
         String password = passwordGenerator.generatePassword();
 
-        assertTrue(password.matches("[A-Za-z0-9]+"));
+        assertTrue(password.matches(ALPHANUMERIC_PATTERN));
     }
 }

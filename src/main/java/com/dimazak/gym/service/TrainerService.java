@@ -8,7 +8,6 @@ import com.dimazak.gym.util.PasswordGenerator;
 import com.dimazak.gym.util.UsernameGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,28 +17,18 @@ public class TrainerService {
 
     private static final Logger log = LoggerFactory.getLogger(TrainerService.class);
 
-    private TrainerDao trainerDao;
-    private UserDao userDao;
-    private UsernameGenerator usernameGenerator;
-    private PasswordGenerator passwordGenerator;
+    private final TrainerDao trainerDao;
+    private final UserDao userDao;
+    private final UsernameGenerator usernameGenerator;
+    private final PasswordGenerator passwordGenerator;
 
-    @Autowired
-    public void setTrainerDao(TrainerDao trainerDao) {
+    public TrainerService(TrainerDao trainerDao,
+                          UserDao userDao,
+                          UsernameGenerator usernameGenerator,
+                          PasswordGenerator passwordGenerator) {
         this.trainerDao = trainerDao;
-    }
-
-    @Autowired
-    public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
-    }
-
-    @Autowired
-    public void setUsernameGenerator(UsernameGenerator usernameGenerator) {
         this.usernameGenerator = usernameGenerator;
-    }
-
-    @Autowired
-    public void setPasswordGenerator(PasswordGenerator passwordGenerator) {
         this.passwordGenerator = passwordGenerator;
     }
 
@@ -64,13 +53,12 @@ public class TrainerService {
     public Trainer updateTrainer(Long trainerId, Long specialization) {
         log.info("Updating trainer with id: {}", trainerId);
 
-        Optional<Trainer> existing = trainerDao.findById(trainerId);
-        if (existing.isEmpty()) {
-            log.error("Trainer not found with id: {}", trainerId);
-            throw new IllegalArgumentException("Trainer not found with id: " + trainerId);
-        }
+        Trainer trainer = trainerDao.findById(trainerId)
+                .orElseThrow(() -> {
+                    log.error("Trainer not found with id: {}", trainerId);
+                    return new IllegalArgumentException("Trainer not found with id: " + trainerId);
+                });
 
-        Trainer trainer = existing.get();
         trainer.setSpecialization(specialization);
         trainerDao.save(trainer);
 
