@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
+import java.util.List;
 
 @Component
 public class UsernameGenerator {
@@ -21,7 +21,7 @@ public class UsernameGenerator {
 
     public String generateUsername(String firstName, String lastName) {
         String baseUsername = firstName + "." + lastName;
-        Collection<User> allUsers = userDao.findAll();
+        List<User> allUsers = userDao.findAll();
 
         long count = allUsers.stream()
                 .filter(u -> u.getUsername() != null && (

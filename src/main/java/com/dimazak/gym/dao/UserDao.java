@@ -1,55 +1,62 @@
 package com.dimazak.gym.dao;
 
 import com.dimazak.gym.model.User;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
-@Component
+@Repository
 public class UserDao {
 
     private static final Logger log = LoggerFactory.getLogger(UserDao.class);
 
-    private final Map<Long, User> userStorage;
-    private final AtomicLong userIdSequence;
+    private final SessionFactory sessionFactory;
 
-    public UserDao(@Qualifier("userStorage") Map<Long, User> userStorage,
-                   @Qualifier("userIdSequence") AtomicLong userIdSequence) {
-        this.userStorage = userStorage;
-        this.userIdSequence = userIdSequence;
+    public UserDao(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     public User save(User user) {
+        Session session = sessionFactory.getCurrentSession();
         if (user.getId() == null) {
-            user.setId(userIdSequence.incrementAndGet());
+            session.persist(user);
+            log.debug("Persisted new user with id: {}", user.getId());
+        } else {
+            user = session.merge(user);
+            log.debug("Merged user with id: {}", user.getId());
         }
-        userStorage.put(user.getId(), user);
-        log.debug("Saved user with id: {}", user.getId());
         return user;
     }
 
     public Optional<User> findById(Long id) {
         log.debug("Finding user by id: {}", id);
-        return Optional.ofNullable(userStorage.get(id));
+        Session session = sessionFactory.getCurrentSession();
+        return Optional.ofNullable(session.get(User.class, id));
     }
 
-    public Collection<User> findAll() {
+    public Optional<User> findByUsername(String username) {
+        log.debug("Finding user by username: {}", username);
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery(
+                        "FROM User u WHERE u.username = :username", User.class)
+                .setParameter("username", username)
+                .uniqueResultOptional();
+    }
+
+    public List<User> findAll() {
         log.debug("Finding all users");
-        return userStorage.values();
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("FROM User", User.class).list();
     }
 
-    public void deleteById(Long id) {
-        User removed = userStorage.remove(id);
-        if (removed != null) {
-            log.debug("Deleted user with id: {}", id);
-        } else {
-            log.warn("Attempted to delete non-existent user with id: {}", id);
-        }
+    public void delete(User user) {
+        log.debug("Deleting user with id: {}", user.getId());
+        Session session = sessionFactory.getCurrentSession();
+        session.remove(user);
     }
 }

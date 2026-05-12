@@ -10,7 +10,8 @@ import java.security.SecureRandom;
 public class PasswordGenerator {
 
     private static final Logger log = LoggerFactory.getLogger(PasswordGenerator.class);
-    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private static final String CHARACTERS =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int PASSWORD_LENGTH = 10;
 
     private final SecureRandom random = new SecureRandom();

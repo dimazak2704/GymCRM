@@ -1,51 +1,72 @@
 package com.dimazak.gym.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.Objects;
 
+@Entity
+@Table(name = "trainings")
 public class Training {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long traineeId;
-    private Long trainerId;
+
+    @ManyToOne
+    @JoinColumn(name = "trainee_id", nullable = false)
+    private Trainee trainee;
+
+    @ManyToOne
+    @JoinColumn(name = "trainer_id", nullable = false)
+    private Trainer trainer;
+
+    @Column(name = "training_name", nullable = false)
     private String trainingName;
-    private Long trainingTypeId;
+
+    @ManyToOne
+    @JoinColumn(name = "training_type_id", nullable = false)
+    private TrainingType trainingType;
+
+    @Column(name = "training_date", nullable = false)
     private LocalDate trainingDate;
-    private int trainingDurationMinutes;
+
+    @Column(name = "training_duration", nullable = false)
+    private int trainingDuration;
 
     public Training() {}
 
-    public Training(Long id, Long traineeId, Long trainerId, String trainingName,
-                    Long trainingTypeId, LocalDate trainingDate, int trainingDurationMinutes) {
+    public Training(Long id, Trainee trainee, Trainer trainer, String trainingName,
+                    TrainingType trainingType, LocalDate trainingDate, int trainingDuration) {
         this.id = id;
-        this.traineeId = traineeId;
-        this.trainerId = trainerId;
+        this.trainee = trainee;
+        this.trainer = trainer;
         this.trainingName = trainingName;
-        this.trainingTypeId = trainingTypeId;
+        this.trainingType = trainingType;
         this.trainingDate = trainingDate;
-        this.trainingDurationMinutes = trainingDurationMinutes;
+        this.trainingDuration = trainingDuration;
     }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public Long getTraineeId() { return traineeId; }
-    public void setTraineeId(Long traineeId) { this.traineeId = traineeId; }
+    public Trainee getTrainee() { return trainee; }
+    public void setTrainee(Trainee trainee) { this.trainee = trainee; }
 
-    public Long getTrainerId() { return trainerId; }
-    public void setTrainerId(Long trainerId) { this.trainerId = trainerId; }
+    public Trainer getTrainer() { return trainer; }
+    public void setTrainer(Trainer trainer) { this.trainer = trainer; }
 
     public String getTrainingName() { return trainingName; }
     public void setTrainingName(String trainingName) { this.trainingName = trainingName; }
 
-    public Long getTrainingTypeId() { return trainingTypeId; }
-    public void setTrainingTypeId(Long trainingTypeId) { this.trainingTypeId = trainingTypeId; }
+    public TrainingType getTrainingType() { return trainingType; }
+    public void setTrainingType(TrainingType trainingType) { this.trainingType = trainingType; }
 
     public LocalDate getTrainingDate() { return trainingDate; }
     public void setTrainingDate(LocalDate trainingDate) { this.trainingDate = trainingDate; }
 
-    public int getTrainingDurationMinutes() { return trainingDurationMinutes; }
-    public void setTrainingDurationMinutes(int trainingDurationMinutes) {
-        this.trainingDurationMinutes = trainingDurationMinutes;
+    public int getTrainingDuration() { return trainingDuration; }
+    public void setTrainingDuration(int trainingDuration) {
+        this.trainingDuration = trainingDuration;
     }
 
     @Override
@@ -61,8 +82,7 @@ public class Training {
 
     @Override
     public String toString() {
-        return "Training{id=" + id + ", traineeId=" + traineeId + ", trainerId=" + trainerId +
-                ", trainingName='" + trainingName + "', trainingDate=" + trainingDate +
-                ", duration=" + trainingDurationMinutes + "min}";
+        return "Training{id=" + id + ", trainingName='" + trainingName +
+                "', trainingDate=" + trainingDate + ", duration=" + trainingDuration + "min}";
     }
 }

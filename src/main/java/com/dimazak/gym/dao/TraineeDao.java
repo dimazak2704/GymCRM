@@ -1,55 +1,56 @@
 package com.dimazak.gym.dao;
 
 import com.dimazak.gym.model.Trainee;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
-@Component
+@Repository
 public class TraineeDao {
 
     private static final Logger log = LoggerFactory.getLogger(TraineeDao.class);
 
-    private final Map<Long, Trainee> traineeStorage;
-    private final AtomicLong traineeIdSequence;
+    private final SessionFactory sessionFactory;
 
-    public TraineeDao(@Qualifier("traineeStorage") Map<Long, Trainee> traineeStorage,
-                      @Qualifier("traineeIdSequence") AtomicLong traineeIdSequence) {
-        this.traineeStorage = traineeStorage;
-        this.traineeIdSequence = traineeIdSequence;
+    public TraineeDao(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     public Trainee save(Trainee trainee) {
+        Session session = sessionFactory.getCurrentSession();
         if (trainee.getId() == null) {
-            trainee.setId(traineeIdSequence.incrementAndGet());
+            session.persist(trainee);
+            log.debug("Persisted new trainee with id: {}", trainee.getId());
+        } else {
+            trainee = session.merge(trainee);
+            log.debug("Merged trainee with id: {}", trainee.getId());
         }
-        traineeStorage.put(trainee.getId(), trainee);
-        log.debug("Saved trainee with id: {}", trainee.getId());
         return trainee;
     }
 
     public Optional<Trainee> findById(Long id) {
         log.debug("Finding trainee by id: {}", id);
-        return Optional.ofNullable(traineeStorage.get(id));
+        Session session = sessionFactory.getCurrentSession();
+        return Optional.ofNullable(session.get(Trainee.class, id));
     }
 
-    public Collection<Trainee> findAll() {
-        log.debug("Finding all trainees");
-        return traineeStorage.values();
+    public Optional<Trainee> findByUsername(String username) {
+        log.debug("Finding trainee by username: {}", username);
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery(
+                        "FROM Trainee t JOIN FETCH t.user WHERE t.user.username = :username",
+                        Trainee.class)
+                .setParameter("username", username)
+                .uniqueResultOptional();
     }
 
-    public void deleteById(Long id) {
-        Trainee removed = traineeStorage.remove(id);
-        if (removed != null) {
-            log.debug("Deleted trainee with id: {}", id);
-        } else {
-            log.warn("Attempted to delete non-existent trainee with id: {}", id);
-        }
+    public void delete(Trainee trainee) {
+        log.debug("Deleting trainee with id: {}", trainee.getId());
+        Session session = sessionFactory.getCurrentSession();
+        session.remove(trainee);
     }
 }

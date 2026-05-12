@@ -1,23 +1,35 @@
 package com.dimazak.gym.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+import jakarta.persistence.*;
 import java.util.Objects;
 
+@Entity
+@Table(name = "users")
 public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "first_name", nullable = false)
     private String firstName;
+
+    @Column(name = "last_name", nullable = false)
     private String lastName;
+
+    @Column(nullable = false, unique = true)
     private String username;
+
+    @Column(nullable = false)
     private String password;
 
-    @JsonProperty("isActive")
+    @Column(name = "is_active", nullable = false)
     private boolean isActive;
 
     public User() {}
 
-    public User(Long id, String firstName, String lastName, String username,
-                String password, boolean isActive) {
+    public User(Long id, String firstName, String lastName,
+                String username, String password, boolean isActive) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -53,13 +65,12 @@ public class User {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
+    public int hashCode() { return Objects.hash(id); }
 
     @Override
     public String toString() {
-        return "User{id=" + id + ", firstName='" + firstName + "', lastName='" + lastName +
-                "', username='" + username + "', isActive=" + isActive + '}';
+        return "User{id=" + id + ", firstName='" + firstName +
+                "', lastName='" + lastName + "', username='" + username +
+                "', isActive=" + isActive + '}';
     }
 }

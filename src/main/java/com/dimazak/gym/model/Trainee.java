@@ -1,21 +1,46 @@
 package com.dimazak.gym.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
+@Entity
+@Table(name = "trainees")
 public class Trainee {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
+
     private String address;
-    private Long userId;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
+
+    @ManyToMany
+    @JoinTable(
+            name = "trainee_trainer",
+            joinColumns = @JoinColumn(name = "trainee_id"),
+            inverseJoinColumns = @JoinColumn(name = "trainer_id")
+    )
+    private List<Trainer> trainers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "trainee", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Training> trainings = new ArrayList<>();
 
     public Trainee() {}
 
-    public Trainee(Long id, LocalDate dateOfBirth, String address, Long userId) {
+    public Trainee(Long id, LocalDate dateOfBirth, String address, User user) {
         this.id = id;
         this.dateOfBirth = dateOfBirth;
         this.address = address;
-        this.userId = userId;
+        this.user = user;
     }
 
     public Long getId() { return id; }
@@ -27,8 +52,14 @@ public class Trainee {
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
 
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+
+    public List<Trainer> getTrainers() { return trainers; }
+    public void setTrainers(List<Trainer> trainers) { this.trainers = trainers; }
+
+    public List<Training> getTrainings() { return trainings; }
+    public void setTrainings(List<Training> trainings) { this.trainings = trainings; }
 
     @Override
     public boolean equals(Object o) {
@@ -44,6 +75,6 @@ public class Trainee {
     @Override
     public String toString() {
         return "Trainee{id=" + id + ", dateOfBirth=" + dateOfBirth +
-                ", address='" + address + "', userId=" + userId + '}';
+                ", address='" + address + "', user=" + user + '}';
     }
 }

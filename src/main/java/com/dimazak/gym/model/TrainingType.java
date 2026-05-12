@@ -1,9 +1,17 @@
 package com.dimazak.gym.model;
 
+import jakarta.persistence.*;
 import java.util.Objects;
 
+@Entity
+@Table(name = "training_types")
 public class TrainingType {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "training_type_name", nullable = false)
     private String trainingTypeName;
 
     public TrainingType() {}

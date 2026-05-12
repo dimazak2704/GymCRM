@@ -1,17 +1,24 @@
 package com.dimazak.gym.service;
 
 import com.dimazak.gym.dao.TraineeDao;
-import com.dimazak.gym.dao.UserDao;
+import com.dimazak.gym.dao.TrainerDao;
+import com.dimazak.gym.dao.TrainingDao;
+import com.dimazak.gym.exception.EntityNotFoundException;
+import com.dimazak.gym.exception.ValidationException;
 import com.dimazak.gym.model.Trainee;
+import com.dimazak.gym.model.Trainer;
+import com.dimazak.gym.model.Training;
 import com.dimazak.gym.model.User;
 import com.dimazak.gym.util.PasswordGenerator;
 import com.dimazak.gym.util.UsernameGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TraineeService {
@@ -19,76 +26,165 @@ public class TraineeService {
     private static final Logger log = LoggerFactory.getLogger(TraineeService.class);
 
     private final TraineeDao traineeDao;
-    private final UserDao userDao;
+    private final TrainerDao trainerDao;
+    private final TrainingDao trainingDao;
     private final UsernameGenerator usernameGenerator;
     private final PasswordGenerator passwordGenerator;
 
     public TraineeService(TraineeDao traineeDao,
-                          UserDao userDao,
+                          TrainerDao trainerDao,
+                          TrainingDao trainingDao,
                           UsernameGenerator usernameGenerator,
                           PasswordGenerator passwordGenerator) {
         this.traineeDao = traineeDao;
-        this.userDao = userDao;
+        this.trainerDao = trainerDao;
+        this.trainingDao = trainingDao;
         this.usernameGenerator = usernameGenerator;
         this.passwordGenerator = passwordGenerator;
     }
 
+    @Transactional
     public Trainee createTrainee(String firstName, String lastName,
-                                 LocalDate dateOfBirth, String address, boolean isActive) {
+                                 LocalDate dateOfBirth, String address) {
         log.info("Creating trainee profile for: {} {}", firstName, lastName);
+
+        validateRequiredFields(firstName, lastName);
 
         String username = usernameGenerator.generateUsername(firstName, lastName);
         String password = passwordGenerator.generatePassword();
 
-        User user = new User(null, firstName, lastName, username, password, isActive);
-        user = userDao.save(user);
-        log.info("User created with username: {}", username);
+        User user = new User(null, firstName, lastName, username, password, true);
 
-        Trainee trainee = new Trainee(null, dateOfBirth, address, user.getId());
+        Trainee trainee = new Trainee(null, dateOfBirth, address, user);
         trainee = traineeDao.save(trainee);
-        log.info("Trainee profile created with id: {}", trainee.getId());
 
+        log.info("Trainee profile created. Username: {}, TraineeId: {}",
+                username, trainee.getId());
         return trainee;
     }
 
-    public Trainee updateTrainee(Long traineeId, LocalDate dateOfBirth, String address) {
-        log.info("Updating trainee with id: {}", traineeId);
+    @Transactional(readOnly = true)
+    public boolean matchCredentials(String username, String password) {
+        log.debug("Matching credentials for trainee username: {}", username);
+        return traineeDao.findByUsername(username)
+                .map(trainee -> trainee.getUser().getPassword().equals(password))
+                .orElse(false);
+    }
 
-        Trainee trainee = traineeDao.findById(traineeId)
+    @Transactional(readOnly = true)
+    public Trainee getByUsername(String username) {
+        log.info("Selecting trainee by username: {}", username);
+        return traineeDao.findByUsername(username)
                 .orElseThrow(() -> {
-                    log.error("Trainee not found with id: {}", traineeId);
-                    return new IllegalArgumentException("Trainee not found with id: " + traineeId);
+                    log.error("Trainee not found with username: {}", username);
+                    return new EntityNotFoundException(
+                            "Trainee not found with username: " + username);
                 });
+    }
 
-        trainee.setDateOfBirth(dateOfBirth);
-        trainee.setAddress(address);
+    @Transactional
+    public void changePassword(String username, String newPassword) {
+        log.info("Changing password for trainee: {}", username);
+
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new ValidationException("New password cannot be empty");
+        }
+
+        Trainee trainee = getByUsername(username);
+        trainee.getUser().setPassword(newPassword);
         traineeDao.save(trainee);
 
-        log.info("Trainee updated successfully with id: {}", traineeId);
+        log.info("Password changed successfully for trainee: {}", username);
+    }
+
+    @Transactional
+    public Trainee updateTrainee(String username, String firstName, String lastName,
+                                 LocalDate dateOfBirth, String address, boolean isActive) {
+        log.info("Updating trainee profile: {}", username);
+
+        validateRequiredFields(firstName, lastName);
+
+        Trainee trainee = getByUsername(username);
+        User user = trainee.getUser();
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setActive(isActive);
+        trainee.setDateOfBirth(dateOfBirth);
+        trainee.setAddress(address);
+
+        trainee = traineeDao.save(trainee);
+        log.info("Trainee profile updated: {}", username);
         return trainee;
     }
 
-    public void deleteTrainee(Long traineeId) {
-        log.info("Deleting trainee with id: {}", traineeId);
+    @Transactional
+    public void setActiveStatus(String username, boolean isActive) {
+        log.info("Setting active status for trainee '{}' to: {}", username, isActive);
 
-        Trainee trainee = traineeDao.findById(traineeId)
-                .orElseThrow(() -> {
-                    log.error("Trainee not found with id: {}", traineeId);
-                    return new IllegalArgumentException("Trainee not found with id: " + traineeId);
-                });
+        Trainee trainee = getByUsername(username);
 
-        userDao.deleteById(trainee.getUserId());
-        traineeDao.deleteById(traineeId);
-
-        log.info("Trainee deleted successfully with id: {}", traineeId);
-    }
-
-    public Optional<Trainee> selectTrainee(Long traineeId) {
-        log.info("Selecting trainee with id: {}", traineeId);
-        Optional<Trainee> trainee = traineeDao.findById(traineeId);
-        if (trainee.isEmpty()) {
-            log.warn("Trainee not found with id: {}", traineeId);
+        if (trainee.getUser().isActive() == isActive) {
+            throw new ValidationException(
+                    "Trainee is already " + (isActive ? "active" : "deactivated"));
         }
+
+        trainee.getUser().setActive(isActive);
+        traineeDao.save(trainee);
+
+        log.info("Trainee '{}' active status set to: {}", username, isActive);
+    }
+
+    @Transactional
+    public void deleteByUsername(String username) {
+        log.info("Deleting trainee profile by username: {}", username);
+
+        Trainee trainee = getByUsername(username);
+        traineeDao.delete(trainee);
+
+        log.info("Trainee '{}' deleted successfully", username);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Training> getTraineeTrainings(String username, LocalDate fromDate,
+                                              LocalDate toDate, String trainerName,
+                                              String trainingTypeName) {
+        log.info("Getting trainings for trainee: {}", username);
+        getByUsername(username);
+        return trainingDao.findByTraineeUsernameAndCriteria(
+                username, fromDate, toDate, trainerName, trainingTypeName);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Trainer> getUnassignedTrainers(String traineeUsername) {
+        log.info("Getting unassigned trainers for trainee: {}", traineeUsername);
+        getByUsername(traineeUsername);
+        return trainerDao.findUnassignedTrainersByTraineeUsername(traineeUsername);
+    }
+
+    @Transactional
+    public Trainee updateTrainersList(String username, List<String> trainerUsernames) {
+        log.info("Updating trainers list for trainee: {}", username);
+
+        Trainee trainee = getByUsername(username);
+        List<Trainer> trainers = trainerUsernames.stream()
+                .map(trainerUsername -> trainerDao.findByUsername(trainerUsername)
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                "Trainer not found: " + trainerUsername)))
+                .collect(Collectors.toList()); 
+
+        trainee.setTrainers(trainers);
+        trainee = traineeDao.save(trainee);
+
+        log.info("Trainers list updated for trainee: {}", username);
         return trainee;
+    }
+
+    private void validateRequiredFields(String firstName, String lastName) {
+        if (firstName == null || firstName.isBlank()) {
+            throw new ValidationException("First name is required");
+        }
+        if (lastName == null || lastName.isBlank()) {
+            throw new ValidationException("Last name is required");
+        }
     }
 }
