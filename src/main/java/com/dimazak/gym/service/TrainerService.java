@@ -11,6 +11,7 @@ import com.dimazak.gym.model.TrainingType;
 import com.dimazak.gym.model.User;
 import com.dimazak.gym.util.PasswordGenerator;
 import com.dimazak.gym.util.UsernameGenerator;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -43,10 +44,8 @@ public class TrainerService {
     }
 
     @Transactional
-    public Trainer createTrainer(String firstName, String lastName,
-                                 Long specializationId) {
+    public Trainer createTrainer(String firstName, String lastName, Long specializationId) {
         log.info("Creating trainer profile for: {} {}", firstName, lastName);
-
         validateRequiredFields(firstName, lastName, specializationId);
 
         TrainingType specialization = trainingTypeDao.findById(specializationId)
@@ -57,7 +56,6 @@ public class TrainerService {
         String password = passwordGenerator.generatePassword();
 
         User user = new User(null, firstName, lastName, username, password, true);
-
         Trainer trainer = new Trainer(null, specialization, user);
         trainer = trainerDao.save(trainer);
 
@@ -85,10 +83,19 @@ public class TrainerService {
                 });
     }
 
+    @Transactional(readOnly = true)
+    public Trainer getProfileByUsername(String username) {
+        log.info("Getting full profile for trainer: {}", username);
+        Trainer trainer = getByUsername(username);
+        Hibernate.initialize(trainer.getSpecialization());
+        Hibernate.initialize(trainer.getTrainees());
+        trainer.getTrainees().forEach(t -> Hibernate.initialize(t.getUser()));
+        return trainer;
+    }
+
     @Transactional
     public void changePassword(String username, String newPassword) {
         log.info("Changing password for trainer: {}", username);
-
         if (newPassword == null || newPassword.isBlank()) {
             throw new ValidationException("New password cannot be empty");
         }
@@ -96,7 +103,6 @@ public class TrainerService {
         Trainer trainer = getByUsername(username);
         trainer.getUser().setPassword(newPassword);
         trainerDao.save(trainer);
-
         log.info("Password changed successfully for trainer: {}", username);
     }
 
@@ -104,7 +110,6 @@ public class TrainerService {
     public Trainer updateTrainer(String username, String firstName, String lastName,
                                  Long specializationId, boolean isActive) {
         log.info("Updating trainer profile: {}", username);
-
         validateRequiredFields(firstName, lastName, specializationId);
 
         TrainingType specialization = trainingTypeDao.findById(specializationId)
@@ -124,9 +129,34 @@ public class TrainerService {
     }
 
     @Transactional
+    public Trainer updateTrainerProfile(String username, String firstName,
+                                        String lastName, boolean isActive) {
+        log.info("Updating trainer profile (REST): {}", username);
+        if (firstName == null || firstName.isBlank()) {
+            throw new ValidationException("First name is required");
+        }
+        if (lastName == null || lastName.isBlank()) {
+            throw new ValidationException("Last name is required");
+        }
+
+        Trainer trainer = getByUsername(username);
+        User user = trainer.getUser();
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setActive(isActive);
+
+        trainer = trainerDao.save(trainer);
+        Hibernate.initialize(trainer.getSpecialization());
+        Hibernate.initialize(trainer.getTrainees());
+        trainer.getTrainees().forEach(t -> Hibernate.initialize(t.getUser()));
+
+        log.info("Trainer profile updated: {}", username);
+        return trainer;
+    }
+
+    @Transactional
     public void setActiveStatus(String username, boolean isActive) {
         log.info("Setting active status for trainer '{}' to: {}", username, isActive);
-
         Trainer trainer = getByUsername(username);
 
         if (trainer.getUser().isActive() == isActive) {
@@ -136,7 +166,6 @@ public class TrainerService {
 
         trainer.getUser().setActive(isActive);
         trainerDao.save(trainer);
-
         log.info("Trainer '{}' active status set to: {}", username, isActive);
     }
 
@@ -145,8 +174,7 @@ public class TrainerService {
                                               LocalDate toDate, String traineeName) {
         log.info("Getting trainings for trainer: {}", username);
         getByUsername(username);
-        return trainingDao.findByTrainerUsernameAndCriteria(
-                username, fromDate, toDate, traineeName);
+        return trainingDao.findByTrainerWithFilters(username, fromDate, toDate, traineeName);
     }
 
     private void validateRequiredFields(String firstName, String lastName,

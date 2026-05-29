@@ -36,12 +36,50 @@ public class TrainingService {
 
     @Transactional
     public Training addTraining(String traineeUsername, String trainerUsername,
-                                String trainingName, Long trainingTypeId,
-                                LocalDate trainingDate, int trainingDuration) {
+                                String trainingName, LocalDate trainingDate,
+                                int trainingDuration) {
         log.info("Adding training '{}' for trainee: '{}', trainer: '{}'",
                 trainingName, traineeUsername, trainerUsername);
 
-        validateTrainingFields(trainingName, trainingTypeId, trainingDate, trainingDuration);
+        validateTrainingFields(trainingName, trainingDate, trainingDuration);
+
+        Trainee trainee = traineeDao.findByUsername(traineeUsername)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Trainee not found: " + traineeUsername));
+
+        Trainer trainer = trainerDao.findByUsername(trainerUsername)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Trainer not found: " + trainerUsername));
+
+        TrainingType trainingType = trainer.getSpecialization();
+
+        Training training = new Training(null, trainee, trainer,
+                trainingName, trainingType, trainingDate, trainingDuration);
+        training = trainingDao.save(training);
+
+        log.info("Training created with id: {}", training.getId());
+        return training;
+    }
+
+    @Transactional
+    public Training addTraining(String traineeUsername, String trainerUsername,
+                                String trainingName, Long trainingTypeId,
+                                LocalDate trainingDate, int trainingDuration) {
+        log.info("Adding training '{}' with explicit type for trainee: '{}', trainer: '{}'",
+                trainingName, traineeUsername, trainerUsername);
+
+        if (trainingName == null || trainingName.isBlank()) {
+            throw new ValidationException("Training name is required");
+        }
+        if (trainingTypeId == null) {
+            throw new ValidationException("Training type is required");
+        }
+        if (trainingDate == null) {
+            throw new ValidationException("Training date is required");
+        }
+        if (trainingDuration <= 0) {
+            throw new ValidationException("Training duration must be positive");
+        }
 
         Trainee trainee = traineeDao.findByUsername(traineeUsername)
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -63,13 +101,10 @@ public class TrainingService {
         return training;
     }
 
-    private void validateTrainingFields(String trainingName, Long trainingTypeId,
-                                        LocalDate trainingDate, int trainingDuration) {
+    private void validateTrainingFields(String trainingName, LocalDate trainingDate,
+                                        int trainingDuration) {
         if (trainingName == null || trainingName.isBlank()) {
             throw new ValidationException("Training name is required");
-        }
-        if (trainingTypeId == null) {
-            throw new ValidationException("Training type is required");
         }
         if (trainingDate == null) {
             throw new ValidationException("Training date is required");

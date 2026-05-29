@@ -1,8 +1,9 @@
 package com.dimazak.gym.dao;
 
 import com.dimazak.gym.model.TrainingType;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -15,21 +16,20 @@ public class TrainingTypeDao {
 
     private static final Logger log = LoggerFactory.getLogger(TrainingTypeDao.class);
 
-    private final SessionFactory sessionFactory;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    public TrainingTypeDao(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    private Session getSession() {
+        return entityManager.unwrap(Session.class);
     }
 
     public Optional<TrainingType> findById(Long id) {
         log.debug("Finding training type by id: {}", id);
-        Session session = sessionFactory.getCurrentSession();
-        return Optional.ofNullable(session.get(TrainingType.class, id));
+        return Optional.ofNullable(getSession().get(TrainingType.class, id));
     }
 
     public List<TrainingType> findAll() {
         log.debug("Finding all training types");
-        Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("FROM TrainingType", TrainingType.class).list();
+        return getSession().createQuery("FROM TrainingType", TrainingType.class).list();
     }
 }

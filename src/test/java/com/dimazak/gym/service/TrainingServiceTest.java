@@ -26,9 +26,13 @@ class TrainingServiceTest {
     private static final String TRAINEE_USERNAME = "John.Doe";
     private static final String TRAINER_USERNAME = "Jane.Smith";
     private static final String TRAINING_NAME = "Morning Cardio";
+    private static final String EMPTY_NAME = "";
     private static final Long TRAINING_TYPE_ID = 1L;
     private static final LocalDate TRAINING_DATE = LocalDate.of(2024, 4, 1);
     private static final int DURATION = 60;
+    private static final int INVALID_DURATION = -1;
+    private static final int ZERO_DURATION = 0;
+    private static final String SPECIALIZATION = "Cardio";
 
     @Mock private TrainingDao trainingDao;
     @Mock private TraineeDao traineeDao;
@@ -38,14 +42,22 @@ class TrainingServiceTest {
     @InjectMocks
     private TrainingService trainingService;
 
-    @Test
-    void addTraining_shouldCreateSuccessfully() {
-        User traineeUser = new User(1L, "John", "Doe", TRAINEE_USERNAME, "pass", true);
-        Trainee trainee = new Trainee(1L, LocalDate.of(1990, 1, 1), "Addr", traineeUser);
+    private Trainee createTestTrainee() {
+        User user = new User(1L, "John", "Doe", TRAINEE_USERNAME, "pass", true);
+        return new Trainee(1L, LocalDate.of(1990, 1, 1), "Addr", user);
+    }
 
-        User trainerUser = new User(2L, "Jane", "Smith", TRAINER_USERNAME, "pass", true);
-        TrainingType type = new TrainingType(TRAINING_TYPE_ID, "Cardio");
-        Trainer trainer = new Trainer(1L, type, trainerUser);
+    private Trainer createTestTrainer() {
+        User user = new User(2L, "Jane", "Smith", TRAINER_USERNAME, "pass", true);
+        TrainingType type = new TrainingType(TRAINING_TYPE_ID, SPECIALIZATION);
+        return new Trainer(1L, type, user);
+    }
+
+    @Test
+    void addTraining_withType_shouldCreateSuccessfully() {
+        Trainee trainee = createTestTrainee();
+        Trainer trainer = createTestTrainer();
+        TrainingType type = new TrainingType(TRAINING_TYPE_ID, SPECIALIZATION);
 
         when(traineeDao.findByUsername(TRAINEE_USERNAME)).thenReturn(Optional.of(trainee));
         when(trainerDao.findByUsername(TRAINER_USERNAME)).thenReturn(Optional.of(trainer));
@@ -67,6 +79,26 @@ class TrainingServiceTest {
     }
 
     @Test
+    void addTraining_simple_shouldCreateSuccessfully() {
+        Trainee trainee = createTestTrainee();
+        Trainer trainer = createTestTrainer();
+
+        when(traineeDao.findByUsername(TRAINEE_USERNAME)).thenReturn(Optional.of(trainee));
+        when(trainerDao.findByUsername(TRAINER_USERNAME)).thenReturn(Optional.of(trainer));
+        when(trainingDao.save(any(Training.class))).thenAnswer(inv -> {
+            Training t = inv.getArgument(0);
+            t.setId(1L);
+            return t;
+        });
+
+        Training result = trainingService.addTraining(TRAINEE_USERNAME, TRAINER_USERNAME,
+                TRAINING_NAME, TRAINING_DATE, DURATION);
+
+        assertNotNull(result);
+        assertEquals(SPECIALIZATION, result.getTrainingType().getTrainingTypeName());
+    }
+
+    @Test
     void addTraining_shouldThrowWhenTraineeNotFound() {
         when(traineeDao.findByUsername(TRAINEE_USERNAME)).thenReturn(Optional.empty());
 
@@ -77,10 +109,19 @@ class TrainingServiceTest {
 
     @Test
     void addTraining_shouldThrowWhenTrainerNotFound() {
-        User traineeUser = new User(1L, "John", "Doe", TRAINEE_USERNAME, "pass", true);
-        Trainee trainee = new Trainee(1L, LocalDate.of(1990, 1, 1), "Addr", traineeUser);
-        when(traineeDao.findByUsername(TRAINEE_USERNAME)).thenReturn(Optional.of(trainee));
+        when(traineeDao.findByUsername(TRAINEE_USERNAME)).thenReturn(Optional.of(createTestTrainee()));
         when(trainerDao.findByUsername(TRAINER_USERNAME)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class,
+                () -> trainingService.addTraining(TRAINEE_USERNAME, TRAINER_USERNAME,
+                        TRAINING_NAME, TRAINING_TYPE_ID, TRAINING_DATE, DURATION));
+    }
+
+    @Test
+    void addTraining_shouldThrowWhenTypeNotFound() {
+        when(traineeDao.findByUsername(TRAINEE_USERNAME)).thenReturn(Optional.of(createTestTrainee()));
+        when(trainerDao.findByUsername(TRAINER_USERNAME)).thenReturn(Optional.of(createTestTrainer()));
+        when(trainingTypeDao.findById(TRAINING_TYPE_ID)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
                 () -> trainingService.addTraining(TRAINEE_USERNAME, TRAINER_USERNAME,
@@ -91,14 +132,28 @@ class TrainingServiceTest {
     void addTraining_shouldThrowWhenNameIsBlank() {
         assertThrows(ValidationException.class,
                 () -> trainingService.addTraining(TRAINEE_USERNAME, TRAINER_USERNAME,
-                        "", TRAINING_TYPE_ID, TRAINING_DATE, DURATION));
+                        EMPTY_NAME, TRAINING_TYPE_ID, TRAINING_DATE, DURATION));
+    }
+
+    @Test
+    void addTraining_shouldThrowWhenNameIsNull() {
+        assertThrows(ValidationException.class,
+                () -> trainingService.addTraining(TRAINEE_USERNAME, TRAINER_USERNAME,
+                        null, TRAINING_TYPE_ID, TRAINING_DATE, DURATION));
     }
 
     @Test
     void addTraining_shouldThrowWhenDurationIsNegative() {
         assertThrows(ValidationException.class,
                 () -> trainingService.addTraining(TRAINEE_USERNAME, TRAINER_USERNAME,
-                        TRAINING_NAME, TRAINING_TYPE_ID, TRAINING_DATE, -1));
+                        TRAINING_NAME, TRAINING_TYPE_ID, TRAINING_DATE, INVALID_DURATION));
+    }
+
+    @Test
+    void addTraining_shouldThrowWhenDurationIsZero() {
+        assertThrows(ValidationException.class,
+                () -> trainingService.addTraining(TRAINEE_USERNAME, TRAINER_USERNAME,
+                        TRAINING_NAME, TRAINING_TYPE_ID, TRAINING_DATE, ZERO_DURATION));
     }
 
     @Test
@@ -106,5 +161,26 @@ class TrainingServiceTest {
         assertThrows(ValidationException.class,
                 () -> trainingService.addTraining(TRAINEE_USERNAME, TRAINER_USERNAME,
                         TRAINING_NAME, TRAINING_TYPE_ID, null, DURATION));
+    }
+
+    @Test
+    void addTraining_simple_shouldThrowWhenNameBlank() {
+        assertThrows(ValidationException.class,
+                () -> trainingService.addTraining(TRAINEE_USERNAME, TRAINER_USERNAME,
+                        EMPTY_NAME, TRAINING_DATE, DURATION));
+    }
+
+    @Test
+    void addTraining_simple_shouldThrowWhenDateNull() {
+        assertThrows(ValidationException.class,
+                () -> trainingService.addTraining(TRAINEE_USERNAME, TRAINER_USERNAME,
+                        TRAINING_NAME, null, DURATION));
+    }
+
+    @Test
+    void addTraining_simple_shouldThrowWhenDurationZero() {
+        assertThrows(ValidationException.class,
+                () -> trainingService.addTraining(TRAINEE_USERNAME, TRAINER_USERNAME,
+                        TRAINING_NAME, TRAINING_DATE, ZERO_DURATION));
     }
 }

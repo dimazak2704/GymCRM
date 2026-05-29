@@ -5,10 +5,7 @@ import com.dimazak.gym.dao.TrainerDao;
 import com.dimazak.gym.dao.TrainingDao;
 import com.dimazak.gym.exception.EntityNotFoundException;
 import com.dimazak.gym.exception.ValidationException;
-import com.dimazak.gym.model.Trainee;
-import com.dimazak.gym.model.Trainer;
-import com.dimazak.gym.model.TrainingType;
-import com.dimazak.gym.model.User;
+import com.dimazak.gym.model.*;
 import com.dimazak.gym.util.PasswordGenerator;
 import com.dimazak.gym.util.UsernameGenerator;
 import org.junit.jupiter.api.Test;
@@ -33,9 +30,18 @@ class TraineeServiceTest {
     private static final String USERNAME = "John.Doe";
     private static final String PASSWORD = "abc1234567";
     private static final String NEW_PASSWORD = "newPass1234";
+    private static final String WRONG_PASSWORD = "wrongPassword";
+    private static final String EMPTY_PASSWORD = "";
     private static final LocalDate BIRTH_DATE = LocalDate.of(1990, 1, 1);
     private static final String ADDRESS = "123 Main St";
     private static final String NEW_ADDRESS = "456 New St";
+    private static final String TRAINER_USERNAME = "Bob.Smith";
+    private static final String TRAINER_FIRST_NAME = "Bob";
+    private static final String TRAINER_LAST_NAME = "Smith";
+    private static final Long TRAINEE_ID = 1L;
+    private static final Long TRAINER_ID = 1L;
+    private static final Long SPECIALIZATION_ID = 1L;
+    private static final String SPECIALIZATION = "Cardio";
 
     @Mock private TraineeDao traineeDao;
     @Mock private TrainerDao trainerDao;
@@ -46,21 +52,25 @@ class TraineeServiceTest {
     @InjectMocks
     private TraineeService traineeService;
 
+    private Trainee createTestTrainee() {
+        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
+        return new Trainee(TRAINEE_ID, BIRTH_DATE, ADDRESS, user);
+    }
+
     @Test
     void createTrainee_shouldCreateSuccessfully() {
         when(usernameGenerator.generateUsername(FIRST_NAME, LAST_NAME)).thenReturn(USERNAME);
         when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
         when(traineeDao.save(any(Trainee.class))).thenAnswer(inv -> {
             Trainee t = inv.getArgument(0);
-            t.setId(1L);
+            t.setId(TRAINEE_ID);
             return t;
         });
 
-        Trainee result = traineeService.createTrainee(FIRST_NAME, LAST_NAME,
-                BIRTH_DATE, ADDRESS);
+        Trainee result = traineeService.createTrainee(FIRST_NAME, LAST_NAME, BIRTH_DATE, ADDRESS);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
+        assertEquals(TRAINEE_ID, result.getId());
         assertEquals(USERNAME, result.getUser().getUsername());
         assertEquals(PASSWORD, result.getUser().getPassword());
         verify(traineeDao).save(any(Trainee.class));
@@ -73,27 +83,43 @@ class TraineeServiceTest {
     }
 
     @Test
+    void createTrainee_shouldThrowWhenFirstNameIsBlank() {
+        assertThrows(ValidationException.class,
+                () -> traineeService.createTrainee("  ", LAST_NAME, BIRTH_DATE, ADDRESS));
+    }
+
+    @Test
     void createTrainee_shouldThrowWhenLastNameIsBlank() {
         assertThrows(ValidationException.class,
                 () -> traineeService.createTrainee(FIRST_NAME, "", BIRTH_DATE, ADDRESS));
     }
 
     @Test
+    void existsByUsername_shouldReturnTrue() {
+        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainee()));
+
+        assertTrue(traineeService.existsByUsername(USERNAME));
+    }
+
+    @Test
+    void existsByUsername_shouldReturnFalse() {
+        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.empty());
+
+        assertFalse(traineeService.existsByUsername(USERNAME));
+    }
+
+    @Test
     void matchCredentials_shouldReturnTrueForValidCredentials() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        Trainee trainee = new Trainee(1L, BIRTH_DATE, ADDRESS, user);
-        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainee));
+        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainee()));
 
         assertTrue(traineeService.matchCredentials(USERNAME, PASSWORD));
     }
 
     @Test
     void matchCredentials_shouldReturnFalseForInvalidPassword() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        Trainee trainee = new Trainee(1L, BIRTH_DATE, ADDRESS, user);
-        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainee));
+        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainee()));
 
-        assertFalse(traineeService.matchCredentials(USERNAME, "wrongPassword"));
+        assertFalse(traineeService.matchCredentials(USERNAME, WRONG_PASSWORD));
     }
 
     @Test
@@ -105,9 +131,7 @@ class TraineeServiceTest {
 
     @Test
     void getByUsername_shouldReturnTrainee() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        Trainee trainee = new Trainee(1L, BIRTH_DATE, ADDRESS, user);
-        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainee));
+        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainee()));
 
         Trainee result = traineeService.getByUsername(USERNAME);
 
@@ -124,8 +148,7 @@ class TraineeServiceTest {
 
     @Test
     void changePassword_shouldUpdatePassword() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        Trainee trainee = new Trainee(1L, BIRTH_DATE, ADDRESS, user);
+        Trainee trainee = createTestTrainee();
         when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainee));
         when(traineeDao.save(any(Trainee.class))).thenReturn(trainee);
 
@@ -138,13 +161,18 @@ class TraineeServiceTest {
     @Test
     void changePassword_shouldThrowWhenPasswordIsEmpty() {
         assertThrows(ValidationException.class,
-                () -> traineeService.changePassword(USERNAME, ""));
+                () -> traineeService.changePassword(USERNAME, EMPTY_PASSWORD));
+    }
+
+    @Test
+    void changePassword_shouldThrowWhenPasswordIsNull() {
+        assertThrows(ValidationException.class,
+                () -> traineeService.changePassword(USERNAME, null));
     }
 
     @Test
     void updateTrainee_shouldUpdateAllFields() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        Trainee trainee = new Trainee(1L, BIRTH_DATE, ADDRESS, user);
+        Trainee trainee = createTestTrainee();
         when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainee));
         when(traineeDao.save(any(Trainee.class))).thenReturn(trainee);
 
@@ -158,9 +186,15 @@ class TraineeServiceTest {
     }
 
     @Test
+    void updateTrainee_shouldThrowWhenFirstNameBlank() {
+        assertThrows(ValidationException.class,
+                () -> traineeService.updateTrainee(USERNAME, "", LAST_NAME,
+                        BIRTH_DATE, ADDRESS, true));
+    }
+
+    @Test
     void setActiveStatus_shouldDeactivate() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        Trainee trainee = new Trainee(1L, BIRTH_DATE, ADDRESS, user);
+        Trainee trainee = createTestTrainee();
         when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainee));
         when(traineeDao.save(any(Trainee.class))).thenReturn(trainee);
 
@@ -171,8 +205,7 @@ class TraineeServiceTest {
 
     @Test
     void setActiveStatus_shouldThrowWhenAlreadySameStatus() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        Trainee trainee = new Trainee(1L, BIRTH_DATE, ADDRESS, user);
+        Trainee trainee = createTestTrainee();
         when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainee));
 
         assertThrows(ValidationException.class,
@@ -181,8 +214,7 @@ class TraineeServiceTest {
 
     @Test
     void deleteByUsername_shouldDeleteTrainee() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        Trainee trainee = new Trainee(1L, BIRTH_DATE, ADDRESS, user);
+        Trainee trainee = createTestTrainee();
         when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainee));
 
         traineeService.deleteByUsername(USERNAME);
@@ -191,27 +223,55 @@ class TraineeServiceTest {
     }
 
     @Test
-    void updateTrainersList_shouldUpdateTrainers() {
-        User traineeUser = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        Trainee trainee = new Trainee(1L, BIRTH_DATE, ADDRESS, traineeUser);
+    void deleteByUsername_shouldThrowWhenNotFound() {
+        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.empty());
 
-        User trainerUser = new User(2L, "Bob", "Smith", "Bob.Smith", "pass", true);
-        TrainingType type = new TrainingType(1L, "Cardio");
-        Trainer trainer = new Trainer(1L, type, trainerUser);
+        assertThrows(EntityNotFoundException.class,
+                () -> traineeService.deleteByUsername(USERNAME));
+    }
+
+    @Test
+    void getTraineeTrainings_shouldDelegateToDao() {
+        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainee()));
+        when(trainingDao.findByTraineeWithFilters(USERNAME, null, null, null, null))
+                .thenReturn(List.of());
+
+        List<Training> result = traineeService.getTraineeTrainings(
+                USERNAME, null, null, null, null);
+
+        assertTrue(result.isEmpty());
+        verify(trainingDao).findByTraineeWithFilters(USERNAME, null, null, null, null);
+    }
+
+    @Test
+    void getUnassignedTrainers_shouldDelegateToDao() {
+        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainee()));
+        when(trainerDao.findUnassignedByTraineeUsername(USERNAME)).thenReturn(List.of());
+
+        List<Trainer> result = traineeService.getUnassignedTrainers(USERNAME);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void updateTrainersList_shouldUpdateTrainers() {
+        Trainee trainee = createTestTrainee();
+        User trainerUser = new User(2L, TRAINER_FIRST_NAME, TRAINER_LAST_NAME, TRAINER_USERNAME, "pass", true);
+        TrainingType type = new TrainingType(SPECIALIZATION_ID, SPECIALIZATION);
+        Trainer trainer = new Trainer(TRAINER_ID, type, trainerUser);
 
         when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainee));
-        when(trainerDao.findByUsername("Bob.Smith")).thenReturn(Optional.of(trainer));
+        when(trainerDao.findByUsername(TRAINER_USERNAME)).thenReturn(Optional.of(trainer));
         when(traineeDao.save(any(Trainee.class))).thenReturn(trainee);
 
-        Trainee result = traineeService.updateTrainersList(USERNAME, List.of("Bob.Smith"));
+        Trainee result = traineeService.updateTrainersList(USERNAME, List.of(TRAINER_USERNAME));
 
         assertEquals(1, result.getTrainers().size());
     }
 
     @Test
     void updateTrainersList_shouldThrowWhenTrainerNotFound() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        Trainee trainee = new Trainee(1L, BIRTH_DATE, ADDRESS, user);
+        Trainee trainee = createTestTrainee();
         when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainee));
         when(trainerDao.findByUsername("NonExistent")).thenReturn(Optional.empty());
 

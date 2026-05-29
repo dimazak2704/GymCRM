@@ -5,9 +5,7 @@ import com.dimazak.gym.dao.TrainingDao;
 import com.dimazak.gym.dao.TrainingTypeDao;
 import com.dimazak.gym.exception.EntityNotFoundException;
 import com.dimazak.gym.exception.ValidationException;
-import com.dimazak.gym.model.Trainer;
-import com.dimazak.gym.model.TrainingType;
-import com.dimazak.gym.model.User;
+import com.dimazak.gym.model.*;
 import com.dimazak.gym.util.PasswordGenerator;
 import com.dimazak.gym.util.UsernameGenerator;
 import org.junit.jupiter.api.Test;
@@ -16,6 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,8 +30,13 @@ class TrainerServiceTest {
     private static final String USERNAME = "Jane.Doe";
     private static final String PASSWORD = "pass123456";
     private static final String NEW_PASSWORD = "newPass5678";
+    private static final String WRONG_PASSWORD = "wrong";
     private static final Long SPECIALIZATION_ID = 1L;
     private static final Long NEW_SPECIALIZATION_ID = 2L;
+    private static final Long INVALID_SPECIALIZATION_ID = 99L;
+    private static final String SPECIALIZATION = "Cardio";
+    private static final String NEW_SPECIALIZATION = "Strength";
+    private static final Long TRAINER_ID = 1L;
 
     @Mock private TrainerDao trainerDao;
     @Mock private TrainingDao trainingDao;
@@ -42,22 +47,28 @@ class TrainerServiceTest {
     @InjectMocks
     private TrainerService trainerService;
 
+    private Trainer createTestTrainer() {
+        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
+        TrainingType type = new TrainingType(SPECIALIZATION_ID, SPECIALIZATION);
+        return new Trainer(TRAINER_ID, type, user);
+    }
+
     @Test
     void createTrainer_shouldCreateSuccessfully() {
-        TrainingType type = new TrainingType(SPECIALIZATION_ID, "Cardio");
+        TrainingType type = new TrainingType(SPECIALIZATION_ID, SPECIALIZATION);
         when(trainingTypeDao.findById(SPECIALIZATION_ID)).thenReturn(Optional.of(type));
         when(usernameGenerator.generateUsername(FIRST_NAME, LAST_NAME)).thenReturn(USERNAME);
         when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
         when(trainerDao.save(any(Trainer.class))).thenAnswer(inv -> {
             Trainer t = inv.getArgument(0);
-            t.setId(1L);
+            t.setId(TRAINER_ID);
             return t;
         });
 
         Trainer result = trainerService.createTrainer(FIRST_NAME, LAST_NAME, SPECIALIZATION_ID);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
+        assertEquals(TRAINER_ID, result.getId());
         assertEquals(USERNAME, result.getUser().getUsername());
         assertEquals(type, result.getSpecialization());
     }
@@ -69,39 +80,49 @@ class TrainerServiceTest {
     }
 
     @Test
+    void createTrainer_shouldThrowWhenLastNameIsBlank() {
+        assertThrows(ValidationException.class,
+                () -> trainerService.createTrainer(FIRST_NAME, "", SPECIALIZATION_ID));
+    }
+
+    @Test
+    void createTrainer_shouldThrowWhenSpecializationNull() {
+        assertThrows(ValidationException.class,
+                () -> trainerService.createTrainer(FIRST_NAME, LAST_NAME, null));
+    }
+
+    @Test
     void createTrainer_shouldThrowWhenSpecializationNotFound() {
-        when(trainingTypeDao.findById(99L)).thenReturn(Optional.empty());
+        when(trainingTypeDao.findById(INVALID_SPECIALIZATION_ID)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
-                () -> trainerService.createTrainer(FIRST_NAME, LAST_NAME, 99L));
+                () -> trainerService.createTrainer(FIRST_NAME, LAST_NAME, INVALID_SPECIALIZATION_ID));
     }
 
     @Test
     void matchCredentials_shouldReturnTrueForValidCredentials() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        TrainingType type = new TrainingType(SPECIALIZATION_ID, "Cardio");
-        Trainer trainer = new Trainer(1L, type, user);
-        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainer));
+        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainer()));
 
         assertTrue(trainerService.matchCredentials(USERNAME, PASSWORD));
     }
 
     @Test
     void matchCredentials_shouldReturnFalseForInvalidPassword() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        TrainingType type = new TrainingType(SPECIALIZATION_ID, "Cardio");
-        Trainer trainer = new Trainer(1L, type, user);
-        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainer));
+        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainer()));
 
-        assertFalse(trainerService.matchCredentials(USERNAME, "wrong"));
+        assertFalse(trainerService.matchCredentials(USERNAME, WRONG_PASSWORD));
+    }
+
+    @Test
+    void matchCredentials_shouldReturnFalseWhenNotFound() {
+        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.empty());
+
+        assertFalse(trainerService.matchCredentials(USERNAME, PASSWORD));
     }
 
     @Test
     void getByUsername_shouldReturnTrainer() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        TrainingType type = new TrainingType(SPECIALIZATION_ID, "Cardio");
-        Trainer trainer = new Trainer(1L, type, user);
-        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainer));
+        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainer()));
 
         Trainer result = trainerService.getByUsername(USERNAME);
 
@@ -118,9 +139,7 @@ class TrainerServiceTest {
 
     @Test
     void changePassword_shouldUpdatePassword() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        TrainingType type = new TrainingType(SPECIALIZATION_ID, "Cardio");
-        Trainer trainer = new Trainer(1L, type, user);
+        Trainer trainer = createTestTrainer();
         when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainer));
         when(trainerDao.save(any(Trainer.class))).thenReturn(trainer);
 
@@ -136,12 +155,15 @@ class TrainerServiceTest {
     }
 
     @Test
-    void updateTrainer_shouldUpdateAllFields() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        TrainingType oldType = new TrainingType(SPECIALIZATION_ID, "Cardio");
-        TrainingType newType = new TrainingType(NEW_SPECIALIZATION_ID, "Strength");
-        Trainer trainer = new Trainer(1L, oldType, user);
+    void changePassword_shouldThrowWhenPasswordIsBlank() {
+        assertThrows(ValidationException.class,
+                () -> trainerService.changePassword(USERNAME, "  "));
+    }
 
+    @Test
+    void updateTrainer_shouldUpdateAllFields() {
+        Trainer trainer = createTestTrainer();
+        TrainingType newType = new TrainingType(NEW_SPECIALIZATION_ID, NEW_SPECIALIZATION);
         when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainer));
         when(trainingTypeDao.findById(NEW_SPECIALIZATION_ID)).thenReturn(Optional.of(newType));
         when(trainerDao.save(any(Trainer.class))).thenReturn(trainer);
@@ -156,9 +178,8 @@ class TrainerServiceTest {
 
     @Test
     void setActiveStatus_shouldActivate() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, false);
-        TrainingType type = new TrainingType(SPECIALIZATION_ID, "Cardio");
-        Trainer trainer = new Trainer(1L, type, user);
+        Trainer trainer = createTestTrainer();
+        trainer.getUser().setActive(false);
         when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainer));
         when(trainerDao.save(any(Trainer.class))).thenReturn(trainer);
 
@@ -169,12 +190,23 @@ class TrainerServiceTest {
 
     @Test
     void setActiveStatus_shouldThrowWhenAlreadySameStatus() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
-        TrainingType type = new TrainingType(SPECIALIZATION_ID, "Cardio");
-        Trainer trainer = new Trainer(1L, type, user);
-        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainer));
+        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainer()));
 
         assertThrows(ValidationException.class,
                 () -> trainerService.setActiveStatus(USERNAME, true));
+    }
+
+    @Test
+    void getTrainerTrainings_shouldDelegateToDao() {
+        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainer()));
+        LocalDate from = LocalDate.of(2024, 1, 1);
+        LocalDate to = LocalDate.of(2024, 12, 31);
+        when(trainingDao.findByTrainerWithFilters(USERNAME, from, to, null))
+                .thenReturn(List.of());
+
+        List<Training> result = trainerService.getTrainerTrainings(USERNAME, from, to, null);
+
+        assertTrue(result.isEmpty());
+        verify(trainingDao).findByTrainerWithFilters(USERNAME, from, to, null);
     }
 }

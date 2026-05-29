@@ -11,6 +11,7 @@ import com.dimazak.gym.model.Training;
 import com.dimazak.gym.model.User;
 import com.dimazak.gym.util.PasswordGenerator;
 import com.dimazak.gym.util.UsernameGenerator;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -47,20 +48,23 @@ public class TraineeService {
     public Trainee createTrainee(String firstName, String lastName,
                                  LocalDate dateOfBirth, String address) {
         log.info("Creating trainee profile for: {} {}", firstName, lastName);
-
         validateRequiredFields(firstName, lastName);
 
         String username = usernameGenerator.generateUsername(firstName, lastName);
         String password = passwordGenerator.generatePassword();
 
         User user = new User(null, firstName, lastName, username, password, true);
-
         Trainee trainee = new Trainee(null, dateOfBirth, address, user);
         trainee = traineeDao.save(trainee);
 
         log.info("Trainee profile created. Username: {}, TraineeId: {}",
                 username, trainee.getId());
         return trainee;
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByUsername(String username) {
+        return traineeDao.findByUsername(username).isPresent();
     }
 
     @Transactional(readOnly = true)
@@ -82,10 +86,21 @@ public class TraineeService {
                 });
     }
 
+    @Transactional(readOnly = true)
+    public Trainee getProfileByUsername(String username) {
+        log.info("Getting full profile for trainee: {}", username);
+        Trainee trainee = getByUsername(username);
+        Hibernate.initialize(trainee.getTrainers());
+        trainee.getTrainers().forEach(t -> {
+            Hibernate.initialize(t.getUser());
+            Hibernate.initialize(t.getSpecialization());
+        });
+        return trainee;
+    }
+
     @Transactional
     public void changePassword(String username, String newPassword) {
         log.info("Changing password for trainee: {}", username);
-
         if (newPassword == null || newPassword.isBlank()) {
             throw new ValidationException("New password cannot be empty");
         }
@@ -93,7 +108,6 @@ public class TraineeService {
         Trainee trainee = getByUsername(username);
         trainee.getUser().setPassword(newPassword);
         traineeDao.save(trainee);
-
         log.info("Password changed successfully for trainee: {}", username);
     }
 
@@ -101,7 +115,6 @@ public class TraineeService {
     public Trainee updateTrainee(String username, String firstName, String lastName,
                                  LocalDate dateOfBirth, String address, boolean isActive) {
         log.info("Updating trainee profile: {}", username);
-
         validateRequiredFields(firstName, lastName);
 
         Trainee trainee = getByUsername(username);
@@ -113,6 +126,12 @@ public class TraineeService {
         trainee.setAddress(address);
 
         trainee = traineeDao.save(trainee);
+        Hibernate.initialize(trainee.getTrainers());
+        trainee.getTrainers().forEach(t -> {
+            Hibernate.initialize(t.getUser());
+            Hibernate.initialize(t.getSpecialization());
+        });
+
         log.info("Trainee profile updated: {}", username);
         return trainee;
     }
@@ -120,7 +139,6 @@ public class TraineeService {
     @Transactional
     public void setActiveStatus(String username, boolean isActive) {
         log.info("Setting active status for trainee '{}' to: {}", username, isActive);
-
         Trainee trainee = getByUsername(username);
 
         if (trainee.getUser().isActive() == isActive) {
@@ -130,17 +148,14 @@ public class TraineeService {
 
         trainee.getUser().setActive(isActive);
         traineeDao.save(trainee);
-
         log.info("Trainee '{}' active status set to: {}", username, isActive);
     }
 
     @Transactional
     public void deleteByUsername(String username) {
         log.info("Deleting trainee profile by username: {}", username);
-
         Trainee trainee = getByUsername(username);
         traineeDao.delete(trainee);
-
         log.info("Trainee '{}' deleted successfully", username);
     }
 
@@ -150,30 +165,35 @@ public class TraineeService {
                                               String trainingTypeName) {
         log.info("Getting trainings for trainee: {}", username);
         getByUsername(username);
-        return trainingDao.findByTraineeUsernameAndCriteria(
-                username, fromDate, toDate, trainerName, trainingTypeName);
+        return trainingDao.findByTraineeWithFilters(username, fromDate, toDate, trainerName, trainingTypeName);
     }
 
     @Transactional(readOnly = true)
     public List<Trainer> getUnassignedTrainers(String traineeUsername) {
         log.info("Getting unassigned trainers for trainee: {}", traineeUsername);
         getByUsername(traineeUsername);
-        return trainerDao.findUnassignedTrainersByTraineeUsername(traineeUsername);
+        return trainerDao.findUnassignedByTraineeUsername(traineeUsername);
     }
 
     @Transactional
     public Trainee updateTrainersList(String username, List<String> trainerUsernames) {
         log.info("Updating trainers list for trainee: {}", username);
-
         Trainee trainee = getByUsername(username);
+
         List<Trainer> trainers = trainerUsernames.stream()
                 .map(trainerUsername -> trainerDao.findByUsername(trainerUsername)
                         .orElseThrow(() -> new EntityNotFoundException(
                                 "Trainer not found: " + trainerUsername)))
-                .collect(Collectors.toList()); 
+                .collect(Collectors.toList());
 
         trainee.setTrainers(trainers);
         trainee = traineeDao.save(trainee);
+
+        Hibernate.initialize(trainee.getTrainers());
+        trainee.getTrainers().forEach(t -> {
+            Hibernate.initialize(t.getUser());
+            Hibernate.initialize(t.getSpecialization());
+        });
 
         log.info("Trainers list updated for trainee: {}", username);
         return trainee;

@@ -1,57 +1,60 @@
 package com.dimazak.gym.dao;
 
-import com.dimazak.gym.config.TestConfig;
 import com.dimazak.gym.model.TrainingType;
-import org.hibernate.SessionFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestConfig.class)
-@Transactional
-@Rollback
+@DaoTest
 class TrainingTypeDaoTest {
 
-    @Autowired
-    private TrainingTypeDao trainingTypeDao;
+    private static final String CARDIO = "Cardio";
+    private static final String STRENGTH = "Strength";
+    private static final Long NON_EXISTENT_ID = 999L;
 
-    @Autowired
-    private SessionFactory sessionFactory;
+    @Autowired private TrainingTypeDao trainingTypeDao;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Test
     void findById_shouldReturnTypeWhenExists() {
-        TrainingType type = new TrainingType(null, "Cardio");
-        sessionFactory.getCurrentSession().persist(type);
+        TrainingType type = new TrainingType(null, CARDIO);
+        entityManager.persist(type);
+        entityManager.flush();
 
         Optional<TrainingType> found = trainingTypeDao.findById(type.getId());
 
         assertTrue(found.isPresent());
-        assertEquals("Cardio", found.get().getTrainingTypeName());
+        assertEquals(CARDIO, found.get().getTrainingTypeName());
     }
 
     @Test
     void findById_shouldReturnEmptyWhenNotExists() {
-        assertTrue(trainingTypeDao.findById(999L).isEmpty());
+        assertTrue(trainingTypeDao.findById(NON_EXISTENT_ID).isEmpty());
     }
 
     @Test
     void findAll_shouldReturnAllTypes() {
-        sessionFactory.getCurrentSession().persist(new TrainingType(null, "Cardio"));
-        sessionFactory.getCurrentSession().persist(new TrainingType(null, "Strength"));
-        sessionFactory.getCurrentSession().persist(new TrainingType(null, "Yoga"));
+        entityManager.persist(new TrainingType(null, CARDIO));
+        entityManager.persist(new TrainingType(null, STRENGTH));
+        entityManager.flush();
 
         List<TrainingType> all = trainingTypeDao.findAll();
 
-        assertEquals(3, all.size());
+        assertEquals(2, all.size());
+    }
+
+    @Test
+    void findAll_shouldReturnEmptyWhenNone() {
+        List<TrainingType> all = trainingTypeDao.findAll();
+
+        assertTrue(all.isEmpty());
     }
 }
