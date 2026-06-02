@@ -8,6 +8,7 @@ import com.dimazak.gym.model.Training;
 import com.dimazak.gym.service.AuthenticationService;
 import com.dimazak.gym.service.TraineeService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class TraineeController {
     }
 
     @PostMapping
-    @Operation(summary = "Register trainee", description = "Create a new trainee profile")
+    @Operation(summary = "Register trainee", description = "Create a new trainee profile. No authentication required.")
     public ResponseEntity<RegistrationResponse> register(
             @Valid @RequestBody TraineeRegistrationRequest request) {
         log.info("Registering new trainee: {} {}", request.firstName(), request.lastName());
@@ -53,45 +54,50 @@ public class TraineeController {
                 trainee.getUser().getUsername(),
                 trainee.getUser().getPassword());
 
+        log.info("Trainee registered successfully with username: {}", response.username());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{username}")
     @Operation(summary = "Get trainee profile", description = "Get trainee profile by username")
     public ResponseEntity<TraineeProfileResponse> getProfile(
-            @PathVariable String username,
-            @RequestHeader("X-Password") String password) {
+            @Parameter(description = "Trainee username") @PathVariable String username,
+            @Parameter(description = "User password") @RequestHeader("X-Password") String password) {
         log.info("Getting profile for trainee: {}", username);
         authenticationService.authenticate(username, password);
 
         Trainee trainee = traineeService.getProfileByUsername(username);
+        log.info("Profile retrieved for trainee: {}", username);
         return ResponseEntity.ok(mapper.toTraineeProfileResponse(trainee));
     }
 
-    @PutMapping
+    @PutMapping("/{username}")
     @Operation(summary = "Update trainee profile", description = "Update trainee profile information")
     public ResponseEntity<UpdateTraineeResponse> updateProfile(
+            @Parameter(description = "Trainee username") @PathVariable String username,
             @Valid @RequestBody UpdateTraineeRequest request,
-            @RequestHeader("X-Password") String password) {
-        log.info("Updating trainee profile: {}", request.username());
-        authenticationService.authenticate(request.username(), password);
+            @Parameter(description = "User password") @RequestHeader("X-Password") String password) {
+        log.info("Updating trainee profile: {}", username);
+        authenticationService.authenticate(username, password);
 
         Trainee trainee = traineeService.updateTrainee(
-                request.username(), request.firstName(), request.lastName(),
+                username, request.firstName(), request.lastName(),
                 request.dateOfBirth(), request.address(), request.isActive());
 
+        log.info("Trainee profile updated: {}", username);
         return ResponseEntity.ok(mapper.toUpdateTraineeResponse(trainee));
     }
 
     @DeleteMapping("/{username}")
     @Operation(summary = "Delete trainee profile", description = "Hard delete trainee and cascade trainings")
     public ResponseEntity<Void> deleteProfile(
-            @PathVariable String username,
-            @RequestHeader("X-Password") String password) {
+            @Parameter(description = "Trainee username") @PathVariable String username,
+            @Parameter(description = "User password") @RequestHeader("X-Password") String password) {
         log.info("Deleting trainee profile: {}", username);
         authenticationService.authenticate(username, password);
 
         traineeService.deleteByUsername(username);
+        log.info("Trainee profile deleted: {}", username);
         return ResponseEntity.ok().build();
     }
 
@@ -99,12 +105,13 @@ public class TraineeController {
     @Operation(summary = "Get unassigned trainers",
             description = "Get active trainers not assigned to the trainee")
     public ResponseEntity<List<TrainerSummary>> getUnassignedTrainers(
-            @PathVariable String username,
-            @RequestHeader("X-Password") String password) {
-        log.info("Getting unassigned trainers for: {}", username);
+            @Parameter(description = "Trainee username") @PathVariable String username,
+            @Parameter(description = "User password") @RequestHeader("X-Password") String password) {
+        log.info("Getting unassigned trainers for trainee: {}", username);
         authenticationService.authenticate(username, password);
 
         List<Trainer> trainers = traineeService.getUnassignedTrainers(username);
+        log.info("Found {} unassigned trainers for trainee: {}", trainers.size(), username);
         return ResponseEntity.ok(trainers.stream().map(mapper::toTrainerSummary).toList());
     }
 
@@ -112,19 +119,19 @@ public class TraineeController {
     @Operation(summary = "Update trainee's trainer list",
             description = "Replace trainee's trainer list with the provided one")
     public ResponseEntity<List<TrainerSummary>> updateTrainersList(
-            @PathVariable String username,
+            @Parameter(description = "Trainee username") @PathVariable String username,
             @Valid @RequestBody UpdateTraineeTrainersRequest request,
-            @RequestHeader("X-Password") String password) {
+            @Parameter(description = "User password") @RequestHeader("X-Password") String password) {
         log.info("Updating trainers list for trainee: {}", username);
         authenticationService.authenticate(username, password);
 
-        Trainee trainee = traineeService.updateTrainersList(
-                request.traineeUsername(), request.trainerUsernames());
+        Trainee trainee = traineeService.updateTrainersList(username, request.trainerUsernames());
 
         List<TrainerSummary> response = trainee.getTrainers().stream()
                 .map(mapper::toTrainerSummary)
                 .toList();
 
+        log.info("Trainers list updated for trainee: {}. Total trainers: {}", username, response.size());
         return ResponseEntity.ok(response);
     }
 
@@ -132,32 +139,35 @@ public class TraineeController {
     @Operation(summary = "Get trainee trainings list",
             description = "Get trainee's trainings with optional filters")
     public ResponseEntity<List<TraineeTrainingResponse>> getTrainings(
-            @PathVariable String username,
-            @RequestHeader("X-Password") String password,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodFrom,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodTo,
-            @RequestParam(required = false) String trainerName,
-            @RequestParam(required = false) String trainingType) {
-        log.info("Getting trainings for trainee: {}", username);
+            @Parameter(description = "Trainee username") @PathVariable String username,
+            @Parameter(description = "User password") @RequestHeader("X-Password") String password,
+            @Parameter(description = "Filter from date") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodFrom,
+            @Parameter(description = "Filter to date") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodTo,
+            @Parameter(description = "Filter by trainer name") @RequestParam(required = false) String trainerName,
+            @Parameter(description = "Filter by training type") @RequestParam(required = false) String trainingType) {
+        log.info("Getting trainings for trainee: {} with filters [from={}, to={}, trainer={}, type={}]",
+                username, periodFrom, periodTo, trainerName, trainingType);
         authenticationService.authenticate(username, password);
 
         List<Training> trainings = traineeService.getTraineeTrainings(
                 username, periodFrom, periodTo, trainerName, trainingType);
 
+        log.info("Found {} trainings for trainee: {}", trainings.size(), username);
         return ResponseEntity.ok(trainings.stream().map(mapper::toTraineeTrainingResponse).toList());
     }
 
     @PatchMapping("/{username}/activate")
     @Operation(summary = "Activate/De-activate trainee",
-            description = "Toggle trainee active status (not idempotent)")
+            description = "Set trainee active status")
     public ResponseEntity<Void> updateActiveStatus(
-            @PathVariable String username,
+            @Parameter(description = "Trainee username") @PathVariable String username,
             @Valid @RequestBody ActivateDeactivateRequest request,
-            @RequestHeader("X-Password") String password) {
+            @Parameter(description = "User password") @RequestHeader("X-Password") String password) {
         log.info("Updating active status for trainee: {} to: {}", username, request.isActive());
         authenticationService.authenticate(username, password);
 
-        traineeService.setActiveStatus(request.username(), request.isActive());
+        traineeService.setActiveStatus(username, request.isActive());
+        log.info("Active status updated for trainee: {} → {}", username, request.isActive());
         return ResponseEntity.ok().build();
     }
 }

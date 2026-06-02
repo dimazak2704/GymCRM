@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,8 +30,11 @@ class TrainerServiceTest {
     private static final String LAST_NAME = "Doe";
     private static final String USERNAME = "Jane.Doe";
     private static final String PASSWORD = "pass123456";
+    private static final String ENCODED_PASSWORD = "$2a$10$encodedHash";
     private static final String NEW_PASSWORD = "newPass5678";
+    private static final String ENCODED_NEW_PASSWORD = "$2a$10$newEncodedHash";
     private static final String WRONG_PASSWORD = "wrong";
+    private static final String SHORT_PASSWORD = "short";
     private static final Long SPECIALIZATION_ID = 1L;
     private static final Long NEW_SPECIALIZATION_ID = 2L;
     private static final Long INVALID_SPECIALIZATION_ID = 99L;
@@ -43,12 +47,13 @@ class TrainerServiceTest {
     @Mock private TrainingTypeDao trainingTypeDao;
     @Mock private UsernameGenerator usernameGenerator;
     @Mock private PasswordGenerator passwordGenerator;
+    @Mock private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private TrainerService trainerService;
 
     private Trainer createTestTrainer() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
+        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, ENCODED_PASSWORD, true);
         TrainingType type = new TrainingType(SPECIALIZATION_ID, SPECIALIZATION);
         return new Trainer(TRAINER_ID, type, user);
     }
@@ -59,6 +64,7 @@ class TrainerServiceTest {
         when(trainingTypeDao.findById(SPECIALIZATION_ID)).thenReturn(Optional.of(type));
         when(usernameGenerator.generateUsername(FIRST_NAME, LAST_NAME)).thenReturn(USERNAME);
         when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
+        when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
         when(trainerDao.save(any(Trainer.class))).thenAnswer(inv -> {
             Trainer t = inv.getArgument(0);
             t.setId(TRAINER_ID);
@@ -70,7 +76,9 @@ class TrainerServiceTest {
         assertNotNull(result);
         assertEquals(TRAINER_ID, result.getId());
         assertEquals(USERNAME, result.getUser().getUsername());
+        assertEquals(PASSWORD, result.getUser().getPassword()); // raw повертається для response
         assertEquals(type, result.getSpecialization());
+        verify(passwordEncoder).encode(PASSWORD);
     }
 
     @Test
@@ -102,6 +110,7 @@ class TrainerServiceTest {
     @Test
     void matchCredentials_shouldReturnTrueForValidCredentials() {
         when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainer()));
+        when(passwordEncoder.matches(PASSWORD, ENCODED_PASSWORD)).thenReturn(true);
 
         assertTrue(trainerService.matchCredentials(USERNAME, PASSWORD));
     }
@@ -109,6 +118,7 @@ class TrainerServiceTest {
     @Test
     void matchCredentials_shouldReturnFalseForInvalidPassword() {
         when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainer()));
+        when(passwordEncoder.matches(WRONG_PASSWORD, ENCODED_PASSWORD)).thenReturn(false);
 
         assertFalse(trainerService.matchCredentials(USERNAME, WRONG_PASSWORD));
     }
@@ -141,11 +151,13 @@ class TrainerServiceTest {
     void changePassword_shouldUpdatePassword() {
         Trainer trainer = createTestTrainer();
         when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainer));
+        when(passwordEncoder.encode(NEW_PASSWORD)).thenReturn(ENCODED_NEW_PASSWORD);
         when(trainerDao.save(any(Trainer.class))).thenReturn(trainer);
 
         trainerService.changePassword(USERNAME, NEW_PASSWORD);
 
-        assertEquals(NEW_PASSWORD, trainer.getUser().getPassword());
+        assertEquals(ENCODED_NEW_PASSWORD, trainer.getUser().getPassword());
+        verify(passwordEncoder).encode(NEW_PASSWORD);
     }
 
     @Test
@@ -158,6 +170,12 @@ class TrainerServiceTest {
     void changePassword_shouldThrowWhenPasswordIsBlank() {
         assertThrows(ValidationException.class,
                 () -> trainerService.changePassword(USERNAME, "  "));
+    }
+
+    @Test
+    void changePassword_shouldThrowWhenPasswordTooShort() {
+        assertThrows(ValidationException.class,
+                () -> trainerService.changePassword(USERNAME, SHORT_PASSWORD));
     }
 
     @Test

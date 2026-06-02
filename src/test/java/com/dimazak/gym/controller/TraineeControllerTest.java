@@ -155,11 +155,11 @@ class TraineeControllerTest {
     @Test
     void updateProfile_shouldReturn200() throws Exception {
         UpdateTraineeRequest request = new UpdateTraineeRequest(
-                USERNAME, FIRST_NAME, "Updated", BIRTH_DATE, "New Addr", true);
+                FIRST_NAME, "Updated", BIRTH_DATE, "New Addr", true);
         when(traineeService.updateTrainee(anyString(), anyString(), anyString(),
                 any(), any(), anyBoolean())).thenReturn(testTrainee);
 
-        mockMvc.perform(put(BASE_URL)
+        mockMvc.perform(put(BASE_URL + "/" + USERNAME)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(PASSWORD_HEADER, PASSWORD)
                         .content(objectMapper.writeValueAsString(request)))
@@ -170,10 +170,10 @@ class TraineeControllerTest {
     @Test
     void updateProfile_shouldReturn400WhenIsActiveNull() throws Exception {
         String json = """
-                {"username":"John.Doe","firstName":"John","lastName":"Doe"}
+                {"firstName":"John","lastName":"Doe"}
                 """;
 
-        mockMvc.perform(put(BASE_URL)
+        mockMvc.perform(put(BASE_URL + "/" + USERNAME)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(PASSWORD_HEADER, PASSWORD)
                         .content(json))
@@ -205,7 +205,7 @@ class TraineeControllerTest {
     void updateTrainersList_shouldReturn200() throws Exception {
         testTrainee.setTrainers(List.of(testTrainer));
         UpdateTraineeTrainersRequest request = new UpdateTraineeTrainersRequest(
-                USERNAME, List.of(TRAINER_USERNAME));
+                List.of(TRAINER_USERNAME));
         when(traineeService.updateTrainersList(USERNAME, List.of(TRAINER_USERNAME)))
                 .thenReturn(testTrainee);
 
@@ -219,8 +219,7 @@ class TraineeControllerTest {
 
     @Test
     void updateTrainersList_shouldReturn400WhenListEmpty() throws Exception {
-        UpdateTraineeTrainersRequest request = new UpdateTraineeTrainersRequest(
-                USERNAME, List.of());
+        UpdateTraineeTrainersRequest request = new UpdateTraineeTrainersRequest(List.of());
 
         mockMvc.perform(put(BASE_URL + "/" + USERNAME + "/trainers")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -260,7 +259,7 @@ class TraineeControllerTest {
 
     @Test
     void activateStatus_shouldReturn200() throws Exception {
-        ActivateDeactivateRequest request = new ActivateDeactivateRequest(USERNAME, false);
+        ActivateDeactivateRequest request = new ActivateDeactivateRequest(false);
 
         mockMvc.perform(patch(BASE_URL + "/" + USERNAME + "/activate")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -273,7 +272,7 @@ class TraineeControllerTest {
 
     @Test
     void activateStatus_shouldReturn400WhenAlreadySameStatus() throws Exception {
-        ActivateDeactivateRequest request = new ActivateDeactivateRequest(USERNAME, true);
+        ActivateDeactivateRequest request = new ActivateDeactivateRequest(true);
         doThrow(new ValidationException("Trainee is already active"))
                 .when(traineeService).setActiveStatus(USERNAME, true);
 

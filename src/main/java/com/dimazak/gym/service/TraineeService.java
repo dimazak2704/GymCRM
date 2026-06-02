@@ -14,6 +14,7 @@ import com.dimazak.gym.util.UsernameGenerator;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,23 +26,27 @@ import java.util.stream.Collectors;
 public class TraineeService {
 
     private static final Logger log = LoggerFactory.getLogger(TraineeService.class);
+    private static final int MIN_PASSWORD_LENGTH = 8;
 
     private final TraineeDao traineeDao;
     private final TrainerDao trainerDao;
     private final TrainingDao trainingDao;
     private final UsernameGenerator usernameGenerator;
     private final PasswordGenerator passwordGenerator;
+    private final PasswordEncoder passwordEncoder;
 
     public TraineeService(TraineeDao traineeDao,
                           TrainerDao trainerDao,
                           TrainingDao trainingDao,
                           UsernameGenerator usernameGenerator,
-                          PasswordGenerator passwordGenerator) {
+                          PasswordGenerator passwordGenerator,
+                          PasswordEncoder passwordEncoder) {
         this.traineeDao = traineeDao;
         this.trainerDao = trainerDao;
         this.trainingDao = trainingDao;
         this.usernameGenerator = usernameGenerator;
         this.passwordGenerator = passwordGenerator;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -51,11 +56,14 @@ public class TraineeService {
         validateRequiredFields(firstName, lastName);
 
         String username = usernameGenerator.generateUsername(firstName, lastName);
-        String password = passwordGenerator.generatePassword();
+        String rawPassword = passwordGenerator.generatePassword();
+        String encodedPassword = passwordEncoder.encode(rawPassword);
 
-        User user = new User(null, firstName, lastName, username, password, true);
+        User user = new User(null, firstName, lastName, username, encodedPassword, true);
         Trainee trainee = new Trainee(null, dateOfBirth, address, user);
         trainee = traineeDao.save(trainee);
+
+        trainee.getUser().setPassword(rawPassword);
 
         log.info("Trainee profile created. Username: {}, TraineeId: {}",
                 username, trainee.getId());
@@ -71,7 +79,7 @@ public class TraineeService {
     public boolean matchCredentials(String username, String password) {
         log.debug("Matching credentials for trainee username: {}", username);
         return traineeDao.findByUsername(username)
-                .map(trainee -> trainee.getUser().getPassword().equals(password))
+                .map(trainee -> passwordEncoder.matches(password, trainee.getUser().getPassword()))
                 .orElse(false);
     }
 
@@ -101,12 +109,10 @@ public class TraineeService {
     @Transactional
     public void changePassword(String username, String newPassword) {
         log.info("Changing password for trainee: {}", username);
-        if (newPassword == null || newPassword.isBlank()) {
-            throw new ValidationException("New password cannot be empty");
-        }
+        validatePassword(newPassword);
 
         Trainee trainee = getByUsername(username);
-        trainee.getUser().setPassword(newPassword);
+        trainee.getUser().setPassword(passwordEncoder.encode(newPassword));
         traineeDao.save(trainee);
         log.info("Password changed successfully for trainee: {}", username);
     }
@@ -205,6 +211,16 @@ public class TraineeService {
         }
         if (lastName == null || lastName.isBlank()) {
             throw new ValidationException("Last name is required");
+        }
+    }
+
+    private void validatePassword(String password) {
+        if (password == null || password.isBlank()) {
+            throw new ValidationException("New password cannot be empty");
+        }
+        if (password.length() < MIN_PASSWORD_LENGTH) {
+            throw new ValidationException(
+                    "Password must be at least " + MIN_PASSWORD_LENGTH + " characters long");
         }
     }
 }

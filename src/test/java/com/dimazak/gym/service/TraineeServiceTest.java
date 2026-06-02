@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -48,6 +49,7 @@ class TraineeServiceTest {
     @Mock private TrainingDao trainingDao;
     @Mock private UsernameGenerator usernameGenerator;
     @Mock private PasswordGenerator passwordGenerator;
+    @Mock private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private TraineeService traineeService;
@@ -61,6 +63,7 @@ class TraineeServiceTest {
     void createTrainee_shouldCreateSuccessfully() {
         when(usernameGenerator.generateUsername(FIRST_NAME, LAST_NAME)).thenReturn(USERNAME);
         when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
+        when(passwordEncoder.encode(PASSWORD)).thenReturn("$2a$10$encodedHash");
         when(traineeDao.save(any(Trainee.class))).thenAnswer(inv -> {
             Trainee t = inv.getArgument(0);
             t.setId(TRAINEE_ID);
@@ -73,7 +76,7 @@ class TraineeServiceTest {
         assertEquals(TRAINEE_ID, result.getId());
         assertEquals(USERNAME, result.getUser().getUsername());
         assertEquals(PASSWORD, result.getUser().getPassword());
-        verify(traineeDao).save(any(Trainee.class));
+        verify(passwordEncoder).encode(PASSWORD);
     }
 
     @Test
@@ -110,14 +113,18 @@ class TraineeServiceTest {
 
     @Test
     void matchCredentials_shouldReturnTrueForValidCredentials() {
-        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainee()));
+        Trainee trainee = createTestTrainee();
+        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainee));
+        when(passwordEncoder.matches(PASSWORD, trainee.getUser().getPassword())).thenReturn(true);
 
         assertTrue(traineeService.matchCredentials(USERNAME, PASSWORD));
     }
 
     @Test
     void matchCredentials_shouldReturnFalseForInvalidPassword() {
-        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainee()));
+        Trainee trainee = createTestTrainee();
+        when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainee));
+        when(passwordEncoder.matches(WRONG_PASSWORD, trainee.getUser().getPassword())).thenReturn(false);
 
         assertFalse(traineeService.matchCredentials(USERNAME, WRONG_PASSWORD));
     }
@@ -147,15 +154,22 @@ class TraineeServiceTest {
     }
 
     @Test
+    void changePassword_shouldThrowWhenPasswordTooShort() {
+        assertThrows(ValidationException.class,
+                () -> traineeService.changePassword(USERNAME, "short"));
+    }
+
+    @Test
     void changePassword_shouldUpdatePassword() {
         Trainee trainee = createTestTrainee();
         when(traineeDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainee));
+        when(passwordEncoder.encode(NEW_PASSWORD)).thenReturn("$2a$10$newHash");
         when(traineeDao.save(any(Trainee.class))).thenReturn(trainee);
 
         traineeService.changePassword(USERNAME, NEW_PASSWORD);
 
-        assertEquals(NEW_PASSWORD, trainee.getUser().getPassword());
-        verify(traineeDao).save(trainee);
+        assertEquals("$2a$10$newHash", trainee.getUser().getPassword());
+        verify(passwordEncoder).encode(NEW_PASSWORD);
     }
 
     @Test

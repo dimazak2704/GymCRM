@@ -128,11 +128,11 @@ class TrainerControllerTest {
     @Test
     void updateProfile_shouldReturn200() throws Exception {
         UpdateTrainerRequest request = new UpdateTrainerRequest(
-                USERNAME, FIRST_NAME, "Updated", null, true);
+                FIRST_NAME, "Updated", true);
         when(trainerService.updateTrainerProfile(anyString(), anyString(), anyString(), anyBoolean()))
                 .thenReturn(testTrainer);
 
-        mockMvc.perform(put(BASE_URL)
+        mockMvc.perform(put(BASE_URL + "/" + USERNAME)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(PASSWORD_HEADER, PASSWORD)
                         .content(objectMapper.writeValueAsString(request)))
@@ -160,7 +160,7 @@ class TrainerControllerTest {
 
     @Test
     void activateStatus_shouldReturn200() throws Exception {
-        ActivateDeactivateRequest request = new ActivateDeactivateRequest(USERNAME, false);
+        ActivateDeactivateRequest request = new ActivateDeactivateRequest(false);
 
         mockMvc.perform(patch(BASE_URL + "/" + USERNAME + "/activate")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -173,7 +173,7 @@ class TrainerControllerTest {
 
     @Test
     void activateStatus_shouldReturn400WhenAlreadySameStatus() throws Exception {
-        ActivateDeactivateRequest request = new ActivateDeactivateRequest(USERNAME, true);
+        ActivateDeactivateRequest request = new ActivateDeactivateRequest(true);
         doThrow(new ValidationException("Trainer is already active"))
                 .when(trainerService).setActiveStatus(USERNAME, true);
 

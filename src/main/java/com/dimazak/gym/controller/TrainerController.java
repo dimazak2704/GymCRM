@@ -7,6 +7,7 @@ import com.dimazak.gym.model.Training;
 import com.dimazak.gym.service.AuthenticationService;
 import com.dimazak.gym.service.TrainerService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class TrainerController {
     }
 
     @PostMapping
-    @Operation(summary = "Register trainer", description = "Create a new trainer profile")
+    @Operation(summary = "Register trainer", description = "Create a new trainer profile. No authentication required.")
     public ResponseEntity<RegistrationResponse> register(
             @Valid @RequestBody TrainerRegistrationRequest request) {
         log.info("Registering new trainer: {} {}", request.firstName(), request.lastName());
@@ -51,33 +52,37 @@ public class TrainerController {
                 trainer.getUser().getUsername(),
                 trainer.getUser().getPassword());
 
+        log.info("Trainer registered successfully with username: {}", response.username());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{username}")
     @Operation(summary = "Get trainer profile", description = "Get trainer profile by username")
     public ResponseEntity<TrainerProfileResponse> getProfile(
-            @PathVariable String username,
-            @RequestHeader("X-Password") String password) {
+            @Parameter(description = "Trainer username") @PathVariable String username,
+            @Parameter(description = "User password") @RequestHeader("X-Password") String password) {
         log.info("Getting profile for trainer: {}", username);
         authenticationService.authenticate(username, password);
 
         Trainer trainer = trainerService.getProfileByUsername(username);
+        log.info("Profile retrieved for trainer: {}", username);
         return ResponseEntity.ok(mapper.toTrainerProfileResponse(trainer));
     }
 
-    @PutMapping
-    @Operation(summary = "Update trainer profile", description = "Update trainer profile (specialization is read-only)")
+    @PutMapping("/{username}")
+    @Operation(summary = "Update trainer profile",
+            description = "Update trainer profile information. Specialization is read-only.")
     public ResponseEntity<UpdateTrainerResponse> updateProfile(
+            @Parameter(description = "Trainer username") @PathVariable String username,
             @Valid @RequestBody UpdateTrainerRequest request,
-            @RequestHeader("X-Password") String password) {
-        log.info("Updating trainer profile: {}", request.username());
-        authenticationService.authenticate(request.username(), password);
+            @Parameter(description = "User password") @RequestHeader("X-Password") String password) {
+        log.info("Updating trainer profile: {}", username);
+        authenticationService.authenticate(username, password);
 
         Trainer trainer = trainerService.updateTrainerProfile(
-                request.username(), request.firstName(),
-                request.lastName(), request.isActive());
+                username, request.firstName(), request.lastName(), request.isActive());
 
+        log.info("Trainer profile updated: {}", username);
         return ResponseEntity.ok(mapper.toUpdateTrainerResponse(trainer));
     }
 
@@ -85,31 +90,34 @@ public class TrainerController {
     @Operation(summary = "Get trainer trainings list",
             description = "Get trainer's trainings with optional filters")
     public ResponseEntity<List<TrainerTrainingResponse>> getTrainings(
-            @PathVariable String username,
-            @RequestHeader("X-Password") String password,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodFrom,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodTo,
-            @RequestParam(required = false) String traineeName) {
-        log.info("Getting trainings for trainer: {}", username);
+            @Parameter(description = "Trainer username") @PathVariable String username,
+            @Parameter(description = "User password") @RequestHeader("X-Password") String password,
+            @Parameter(description = "Filter from date") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodFrom,
+            @Parameter(description = "Filter to date") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodTo,
+            @Parameter(description = "Filter by trainee name") @RequestParam(required = false) String traineeName) {
+        log.info("Getting trainings for trainer: {} with filters [from={}, to={}, trainee={}]",
+                username, periodFrom, periodTo, traineeName);
         authenticationService.authenticate(username, password);
 
         List<Training> trainings = trainerService.getTrainerTrainings(
                 username, periodFrom, periodTo, traineeName);
 
+        log.info("Found {} trainings for trainer: {}", trainings.size(), username);
         return ResponseEntity.ok(trainings.stream().map(mapper::toTrainerTrainingResponse).toList());
     }
 
     @PatchMapping("/{username}/activate")
     @Operation(summary = "Activate/De-activate trainer",
-            description = "Toggle trainer active status (not idempotent)")
+            description = "Set trainer active status")
     public ResponseEntity<Void> updateActiveStatus(
-            @PathVariable String username,
+            @Parameter(description = "Trainer username") @PathVariable String username,
             @Valid @RequestBody ActivateDeactivateRequest request,
-            @RequestHeader("X-Password") String password) {
+            @Parameter(description = "User password") @RequestHeader("X-Password") String password) {
         log.info("Updating active status for trainer: {} to: {}", username, request.isActive());
         authenticationService.authenticate(username, password);
 
-        trainerService.setActiveStatus(request.username(), request.isActive());
+        trainerService.setActiveStatus(username, request.isActive());
+        log.info("Active status updated for trainer: {} → {}", username, request.isActive());
         return ResponseEntity.ok().build();
     }
 }

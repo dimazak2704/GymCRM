@@ -1,6 +1,7 @@
 package com.dimazak.gym.controller;
 
 import com.dimazak.gym.dto.ChangePasswordRequest;
+import com.dimazak.gym.dto.LoginRequest;
 import com.dimazak.gym.exception.AuthenticationException;
 import com.dimazak.gym.exception.GlobalExceptionHandler;
 import com.dimazak.gym.service.AuthenticationService;
@@ -52,9 +53,11 @@ class AuthControllerTest {
 
     @Test
     void login_shouldReturn200ForValidCredentials() throws Exception {
-        mockMvc.perform(get(LOGIN_URL)
-                        .param("username", USERNAME)
-                        .param("password", PASSWORD))
+        LoginRequest request = new LoginRequest(USERNAME, PASSWORD);
+
+        mockMvc.perform(post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
         verify(authenticationService).authenticate(USERNAME, PASSWORD);
@@ -62,14 +65,35 @@ class AuthControllerTest {
 
     @Test
     void login_shouldReturn401ForInvalidCredentials() throws Exception {
+        LoginRequest request = new LoginRequest(USERNAME, WRONG_PASSWORD);
         doThrow(new AuthenticationException(AUTH_ERROR))
                 .when(authenticationService).authenticate(USERNAME, WRONG_PASSWORD);
 
-        mockMvc.perform(get(LOGIN_URL)
-                        .param("username", USERNAME)
-                        .param("password", WRONG_PASSWORD))
+        mockMvc.perform(post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value(AUTH_ERROR));
+    }
+
+    @Test
+    void login_shouldReturn400WhenUsernameBlank() throws Exception {
+        LoginRequest request = new LoginRequest("", PASSWORD);
+
+        mockMvc.perform(post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void login_shouldReturn400WhenPasswordBlank() throws Exception {
+        LoginRequest request = new LoginRequest(USERNAME, "");
+
+        mockMvc.perform(post(LOGIN_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
