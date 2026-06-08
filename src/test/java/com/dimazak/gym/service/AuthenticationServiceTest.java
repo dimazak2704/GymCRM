@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,9 +33,15 @@ class AuthenticationServiceTest {
     @InjectMocks
     private AuthenticationService authenticationService;
 
+    private User createTestUser() {
+        return new User(1L, FIRST_NAME, LAST_NAME, USERNAME, ENCODED_PASSWORD, true);
+    }
+
+    // ==================== authenticate() ====================
+
     @Test
     void authenticate_shouldPassForValidCredentials() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, ENCODED_PASSWORD, true);
+        User user = createTestUser();
         when(userDao.findByUsername(USERNAME)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(RAW_PASSWORD, ENCODED_PASSWORD)).thenReturn(true);
 
@@ -51,11 +58,137 @@ class AuthenticationServiceTest {
 
     @Test
     void authenticate_shouldThrowForInvalidPassword() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, ENCODED_PASSWORD, true);
+        User user = createTestUser();
         when(userDao.findByUsername(USERNAME)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(WRONG_PASSWORD, ENCODED_PASSWORD)).thenReturn(false);
 
         assertThrows(AuthenticationException.class,
                 () -> authenticationService.authenticate(USERNAME, WRONG_PASSWORD));
+    }
+
+    @Test
+    void authenticate_shouldNotChangeIsLoggedFlag() {
+        User user = createTestUser();
+        user.setLogged(false);
+        when(userDao.findByUsername(USERNAME)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(RAW_PASSWORD, ENCODED_PASSWORD)).thenReturn(true);
+
+        authenticationService.authenticate(USERNAME, RAW_PASSWORD);
+
+        assertFalse(user.isLogged());
+        verify(userDao, never()).save(any());
+    }
+
+    // ==================== login() ====================
+
+    @Test
+    void login_shouldSetIsLoggedTrueForValidCredentials() {
+        User user = createTestUser();
+        when(userDao.findByUsername(USERNAME)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(RAW_PASSWORD, ENCODED_PASSWORD)).thenReturn(true);
+
+        authenticationService.login(USERNAME, RAW_PASSWORD);
+
+        assertTrue(user.isLogged());
+        verify(userDao).save(user);
+    }
+
+    @Test
+    void login_shouldThrowForInvalidUsername() {
+        when(userDao.findByUsername(WRONG_USERNAME)).thenReturn(Optional.empty());
+
+        assertThrows(AuthenticationException.class,
+                () -> authenticationService.login(WRONG_USERNAME, RAW_PASSWORD));
+        verify(userDao, never()).save(any());
+    }
+
+    @Test
+    void login_shouldThrowForInvalidPassword() {
+        User user = createTestUser();
+        when(userDao.findByUsername(USERNAME)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(WRONG_PASSWORD, ENCODED_PASSWORD)).thenReturn(false);
+
+        assertThrows(AuthenticationException.class,
+                () -> authenticationService.login(USERNAME, WRONG_PASSWORD));
+        assertFalse(user.isLogged());
+        verify(userDao, never()).save(any());
+    }
+
+    @Test
+    void login_shouldKeepIsLoggedTrueWhenAlreadyLogged() {
+        User user = createTestUser();
+        user.setLogged(true);
+        when(userDao.findByUsername(USERNAME)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(RAW_PASSWORD, ENCODED_PASSWORD)).thenReturn(true);
+
+        authenticationService.login(USERNAME, RAW_PASSWORD);
+
+        assertTrue(user.isLogged());
+        verify(userDao).save(user);
+    }
+
+    // ==================== logout() ====================
+
+    @Test
+    void logout_shouldSetIsLoggedFalse() {
+        User user = createTestUser();
+        user.setLogged(true);
+        when(userDao.findByUsername(USERNAME)).thenReturn(Optional.of(user));
+
+        authenticationService.logout(USERNAME);
+
+        assertFalse(user.isLogged());
+        verify(userDao).save(user);
+    }
+
+    @Test
+    void logout_shouldThrowWhenUserNotFound() {
+        when(userDao.findByUsername(USERNAME)).thenReturn(Optional.empty());
+
+        assertThrows(AuthenticationException.class,
+                () -> authenticationService.logout(USERNAME));
+        verify(userDao, never()).save(any());
+    }
+
+    @Test
+    void logout_shouldKeepIsLoggedFalseWhenAlreadyNotLogged() {
+        User user = createTestUser();
+        user.setLogged(false);
+        when(userDao.findByUsername(USERNAME)).thenReturn(Optional.of(user));
+
+        authenticationService.logout(USERNAME);
+
+        assertFalse(user.isLogged());
+        verify(userDao).save(user);
+    }
+
+    // ==================== checkLogged() ====================
+
+    @Test
+    void checkLogged_shouldPassWhenUserIsLogged() {
+        User user = createTestUser();
+        user.setLogged(true);
+        when(userDao.findByUsername(USERNAME)).thenReturn(Optional.of(user));
+
+        assertDoesNotThrow(() -> authenticationService.checkLogged(USERNAME));
+    }
+
+    @Test
+    void checkLogged_shouldThrowWhenUserIsNotLogged() {
+        User user = createTestUser();
+        user.setLogged(false);
+        when(userDao.findByUsername(USERNAME)).thenReturn(Optional.of(user));
+
+        AuthenticationException ex = assertThrows(AuthenticationException.class,
+                () -> authenticationService.checkLogged(USERNAME));
+        assertTrue(ex.getMessage().toLowerCase().contains("not logged in"));
+    }
+
+    @Test
+    void checkLogged_shouldThrowWhenUserNotFound() {
+        when(userDao.findByUsername(USERNAME)).thenReturn(Optional.empty());
+
+        assertThrows(AuthenticationException.class,
+                () -> authenticationService.checkLogged(USERNAME));
     }
 }

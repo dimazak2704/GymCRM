@@ -22,4 +22,13 @@
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
     </root>
+
+    <springProfile name="local,dev">
+        <logger name="com.dimazak.gym" level="DEBUG"/>
+        <logger name="org.hibernate.SQL" level="DEBUG"/>
+    </springProfile>
+
+    <springProfile name="stg,prod">
+        <logger name="com.dimazak.gym" level="INFO"/>
+    </springProfile>
 </configuration>

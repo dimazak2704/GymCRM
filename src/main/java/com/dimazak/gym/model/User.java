@@ -26,6 +26,9 @@ public class User {
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
 
+    @Column(name = "is_logged", nullable = false)
+    private boolean isLogged;
+
     public User() {}
 
     public User(Long id, String firstName, String lastName,
@@ -55,6 +58,14 @@ public class User {
 
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
+
+    public boolean isLogged() {
+        return isLogged;
+    }
+
+    public void setLogged(boolean logged) {
+        isLogged = logged;
+    }
 
     @Override
     public boolean equals(Object o) {

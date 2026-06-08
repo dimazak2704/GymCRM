@@ -47,4 +47,11 @@ public class UserDao {
         log.debug("Finding all users");
         return getSession().createQuery("FROM User", User.class).list();
     }
+
+    public long countActiveUsers() {
+        log.debug("Counting active users");
+        return getSession().createQuery(
+                        "SELECT COUNT(u) FROM User u WHERE u.isActive = true", Long.class)
+                .uniqueResult();
+    }
 }

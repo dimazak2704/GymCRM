@@ -8,8 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -64,6 +66,20 @@ public class GlobalExceptionHandler {
         log.error("Transaction [{}] Unexpected error: {}",
                 MDC.get("transactionId"), ex.getMessage(), ex);
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResource(NoResourceFoundException ex) {
+        log.debug("Static resource not found: {}", ex.getResourcePath());
+        return buildResponse(HttpStatus.NOT_FOUND, "Resource not found");
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingParam(MissingServletRequestParameterException ex) {
+        log.warn("Transaction [{}] Missing parameter: {}",
+                MDC.get("transactionId"), ex.getParameterName());
+        return buildResponse(HttpStatus.BAD_REQUEST,
+                "Missing required parameter: " + ex.getParameterName());
     }
 
     private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message) {

@@ -6,7 +6,9 @@ import com.dimazak.gym.dao.TrainingDao;
 import com.dimazak.gym.dao.TrainingTypeDao;
 import com.dimazak.gym.exception.EntityNotFoundException;
 import com.dimazak.gym.exception.ValidationException;
+import com.dimazak.gym.metrics.GymMetrics;
 import com.dimazak.gym.model.*;
+import io.micrometer.core.annotation.Timed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,22 +25,26 @@ public class TrainingService {
     private final TraineeDao traineeDao;
     private final TrainerDao trainerDao;
     private final TrainingTypeDao trainingTypeDao;
+    private final GymMetrics gymMetrics;
 
     public TrainingService(TrainingDao trainingDao,
                            TraineeDao traineeDao,
                            TrainerDao trainerDao,
-                           TrainingTypeDao trainingTypeDao) {
+                           TrainingTypeDao trainingTypeDao, GymMetrics gymMetrics) {
         this.trainingDao = trainingDao;
         this.traineeDao = traineeDao;
         this.trainerDao = trainerDao;
         this.trainingTypeDao = trainingTypeDao;
+        this.gymMetrics = gymMetrics;
     }
 
+    @Timed(value = "gym.training.creation.time", description = "Time to create training")
     @Transactional
     public Training addTraining(String traineeUsername, String trainerUsername,
                                 String trainingName, LocalDate trainingDate,
                                 int trainingDuration) {
-        log.info("Adding training '{}' for trainee: '{}', trainer: '{}'",
+
+            log.info("Adding training '{}' for trainee: '{}', trainer: '{}'",
                 trainingName, traineeUsername, trainerUsername);
 
         validateTrainingFields(trainingName, trainingDate, trainingDuration);
@@ -58,6 +64,7 @@ public class TrainingService {
         training = trainingDao.save(training);
 
         log.info("Training created with id: {}", training.getId());
+        gymMetrics.incrementTrainingCreated();
         return training;
     }
 

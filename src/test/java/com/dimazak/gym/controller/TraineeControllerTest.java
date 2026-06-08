@@ -35,7 +35,6 @@ class TraineeControllerTest {
 
     private static final String USERNAME = "John.Doe";
     private static final String PASSWORD = "pass123456";
-    private static final String WRONG_PASSWORD = "wrong";
     private static final String FIRST_NAME = "John";
     private static final String LAST_NAME = "Doe";
     private static final LocalDate BIRTH_DATE = LocalDate.of(1990, 1, 1);
@@ -47,7 +46,7 @@ class TraineeControllerTest {
     private static final String TRAINING_NAME = "Morning Run";
     private static final LocalDate TRAINING_DATE = LocalDate.of(2024, 4, 1);
     private static final int TRAINING_DURATION = 60;
-    private static final String PASSWORD_HEADER = "X-Password";
+    private static final String NOT_LOGGED_ERROR = "User is not logged in. Please log in first.";
     private static final String BASE_URL = "/api/trainees";
 
     private MockMvc mockMvc;
@@ -80,6 +79,8 @@ class TraineeControllerTest {
         testTrainer = new Trainer(1L, type, trainerUser);
     }
 
+    // ==================== Register (no auth) ====================
+
     @Test
     void register_shouldReturn201WithCredentials() throws Exception {
         TraineeRegistrationRequest request = new TraineeRegistrationRequest(
@@ -93,6 +94,8 @@ class TraineeControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.username").value(USERNAME))
                 .andExpect(jsonPath("$.password").value(PASSWORD));
+
+        verifyNoInteractions(authenticationService);
     }
 
     @Test
@@ -117,29 +120,34 @@ class TraineeControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    // ==================== Get profile ====================
+
     @Test
-    void getProfile_shouldReturn200() throws Exception {
+    void getProfile_shouldReturn200WhenLogged() throws Exception {
         testTrainee.setTrainers(List.of(testTrainer));
         when(traineeService.getProfileByUsername(USERNAME)).thenReturn(testTrainee);
 
-        mockMvc.perform(get(BASE_URL + "/" + USERNAME)
-                        .header(PASSWORD_HEADER, PASSWORD))
+        mockMvc.perform(get(BASE_URL + "/" + USERNAME))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value(FIRST_NAME))
                 .andExpect(jsonPath("$.lastName").value(LAST_NAME))
                 .andExpect(jsonPath("$.isActive").value(true))
                 .andExpect(jsonPath("$.trainers[0].username").value(TRAINER_USERNAME))
                 .andExpect(jsonPath("$.trainers[0].specialization").value(SPECIALIZATION));
+
+        verify(authenticationService).checkLogged(USERNAME);
     }
 
     @Test
-    void getProfile_shouldReturn401WhenAuthFails() throws Exception {
-        doThrow(new AuthenticationException("Invalid username or password"))
-                .when(authenticationService).authenticate(USERNAME, WRONG_PASSWORD);
+    void getProfile_shouldReturn401WhenNotLogged() throws Exception {
+        doThrow(new AuthenticationException(NOT_LOGGED_ERROR))
+                .when(authenticationService).checkLogged(USERNAME);
 
-        mockMvc.perform(get(BASE_URL + "/" + USERNAME)
-                        .header(PASSWORD_HEADER, WRONG_PASSWORD))
-                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get(BASE_URL + "/" + USERNAME))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value(NOT_LOGGED_ERROR));
+
+        verify(traineeService, never()).getProfileByUsername(any());
     }
 
     @Test
@@ -147,13 +155,14 @@ class TraineeControllerTest {
         when(traineeService.getProfileByUsername("Unknown"))
                 .thenThrow(new EntityNotFoundException("Trainee not found"));
 
-        mockMvc.perform(get(BASE_URL + "/Unknown")
-                        .header(PASSWORD_HEADER, PASSWORD))
+        mockMvc.perform(get(BASE_URL + "/Unknown"))
                 .andExpect(status().isNotFound());
     }
 
+    // ==================== Update profile ====================
+
     @Test
-    void updateProfile_shouldReturn200() throws Exception {
+    void updateProfile_shouldReturn200WhenLogged() throws Exception {
         UpdateTraineeRequest request = new UpdateTraineeRequest(
                 FIRST_NAME, "Updated", BIRTH_DATE, "New Addr", true);
         when(traineeService.updateTrainee(anyString(), anyString(), anyString(),
@@ -161,10 +170,26 @@ class TraineeControllerTest {
 
         mockMvc.perform(put(BASE_URL + "/" + USERNAME)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(PASSWORD_HEADER, PASSWORD)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(USERNAME));
+
+        verify(authenticationService).checkLogged(USERNAME);
+    }
+
+    @Test
+    void updateProfile_shouldReturn401WhenNotLogged() throws Exception {
+        UpdateTraineeRequest request = new UpdateTraineeRequest(
+                FIRST_NAME, LAST_NAME, BIRTH_DATE, ADDRESS, true);
+        doThrow(new AuthenticationException(NOT_LOGGED_ERROR))
+                .when(authenticationService).checkLogged(USERNAME);
+
+        mockMvc.perform(put(BASE_URL + "/" + USERNAME)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
+
+        verify(traineeService, never()).updateTrainee(any(), any(), any(), any(), any(), anyBoolean());
     }
 
     @Test
@@ -175,34 +200,61 @@ class TraineeControllerTest {
 
         mockMvc.perform(put(BASE_URL + "/" + USERNAME)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(PASSWORD_HEADER, PASSWORD)
                         .content(json))
                 .andExpect(status().isBadRequest());
     }
 
+    // ==================== Delete profile ====================
+
     @Test
-    void deleteProfile_shouldReturn200() throws Exception {
-        mockMvc.perform(delete(BASE_URL + "/" + USERNAME)
-                        .header(PASSWORD_HEADER, PASSWORD))
+    void deleteProfile_shouldReturn200WhenLogged() throws Exception {
+        mockMvc.perform(delete(BASE_URL + "/" + USERNAME))
                 .andExpect(status().isOk());
 
-        verify(authenticationService).authenticate(USERNAME, PASSWORD);
+        verify(authenticationService).checkLogged(USERNAME);
         verify(traineeService).deleteByUsername(USERNAME);
     }
 
     @Test
-    void getUnassignedTrainers_shouldReturn200() throws Exception {
+    void deleteProfile_shouldReturn401WhenNotLogged() throws Exception {
+        doThrow(new AuthenticationException(NOT_LOGGED_ERROR))
+                .when(authenticationService).checkLogged(USERNAME);
+
+        mockMvc.perform(delete(BASE_URL + "/" + USERNAME))
+                .andExpect(status().isUnauthorized());
+
+        verify(traineeService, never()).deleteByUsername(any());
+    }
+
+    // ==================== Unassigned trainers ====================
+
+    @Test
+    void getUnassignedTrainers_shouldReturn200WhenLogged() throws Exception {
         when(traineeService.getUnassignedTrainers(USERNAME)).thenReturn(List.of(testTrainer));
 
-        mockMvc.perform(get(BASE_URL + "/" + USERNAME + "/unassigned-trainers")
-                        .header(PASSWORD_HEADER, PASSWORD))
+        mockMvc.perform(get(BASE_URL + "/" + USERNAME + "/unassigned-trainers"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].username").value(TRAINER_USERNAME))
                 .andExpect(jsonPath("$[0].specialization").value(SPECIALIZATION));
+
+        verify(authenticationService).checkLogged(USERNAME);
     }
 
     @Test
-    void updateTrainersList_shouldReturn200() throws Exception {
+    void getUnassignedTrainers_shouldReturn401WhenNotLogged() throws Exception {
+        doThrow(new AuthenticationException(NOT_LOGGED_ERROR))
+                .when(authenticationService).checkLogged(USERNAME);
+
+        mockMvc.perform(get(BASE_URL + "/" + USERNAME + "/unassigned-trainers"))
+                .andExpect(status().isUnauthorized());
+
+        verify(traineeService, never()).getUnassignedTrainers(any());
+    }
+
+    // ==================== Update trainers list ====================
+
+    @Test
+    void updateTrainersList_shouldReturn200WhenLogged() throws Exception {
         testTrainee.setTrainers(List.of(testTrainer));
         UpdateTraineeTrainersRequest request = new UpdateTraineeTrainersRequest(
                 List.of(TRAINER_USERNAME));
@@ -211,10 +263,26 @@ class TraineeControllerTest {
 
         mockMvc.perform(put(BASE_URL + "/" + USERNAME + "/trainers")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(PASSWORD_HEADER, PASSWORD)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].username").value(TRAINER_USERNAME));
+
+        verify(authenticationService).checkLogged(USERNAME);
+    }
+
+    @Test
+    void updateTrainersList_shouldReturn401WhenNotLogged() throws Exception {
+        UpdateTraineeTrainersRequest request = new UpdateTraineeTrainersRequest(
+                List.of(TRAINER_USERNAME));
+        doThrow(new AuthenticationException(NOT_LOGGED_ERROR))
+                .when(authenticationService).checkLogged(USERNAME);
+
+        mockMvc.perform(put(BASE_URL + "/" + USERNAME + "/trainers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
+
+        verify(traineeService, never()).updateTrainersList(any(), any());
     }
 
     @Test
@@ -223,13 +291,14 @@ class TraineeControllerTest {
 
         mockMvc.perform(put(BASE_URL + "/" + USERNAME + "/trainers")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(PASSWORD_HEADER, PASSWORD)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 
+    // ==================== Trainings list ====================
+
     @Test
-    void getTrainings_shouldReturn200() throws Exception {
+    void getTrainings_shouldReturn200WhenLoggedWithFilters() throws Exception {
         TrainingType type = new TrainingType(1L, SPECIALIZATION);
         Training training = new Training(1L, testTrainee, testTrainer,
                 TRAINING_NAME, type, TRAINING_DATE, TRAINING_DURATION);
@@ -237,13 +306,14 @@ class TraineeControllerTest {
                 .thenReturn(List.of(training));
 
         mockMvc.perform(get(BASE_URL + "/" + USERNAME + "/trainings")
-                        .header(PASSWORD_HEADER, PASSWORD)
                         .param("periodFrom", "2024-01-01")
                         .param("periodTo", "2024-12-31"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].trainingName").value(TRAINING_NAME))
                 .andExpect(jsonPath("$[0].trainingDuration").value(TRAINING_DURATION))
                 .andExpect(jsonPath("$[0].trainerName").value(TRAINER_FIRST_NAME + " " + TRAINER_LAST_NAME));
+
+        verify(authenticationService).checkLogged(USERNAME);
     }
 
     @Test
@@ -251,23 +321,49 @@ class TraineeControllerTest {
         when(traineeService.getTraineeTrainings(anyString(), any(), any(), any(), any()))
                 .thenReturn(List.of());
 
-        mockMvc.perform(get(BASE_URL + "/" + USERNAME + "/trainings")
-                        .header(PASSWORD_HEADER, PASSWORD))
+        mockMvc.perform(get(BASE_URL + "/" + USERNAME + "/trainings"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test
-    void activateStatus_shouldReturn200() throws Exception {
+    void getTrainings_shouldReturn401WhenNotLogged() throws Exception {
+        doThrow(new AuthenticationException(NOT_LOGGED_ERROR))
+                .when(authenticationService).checkLogged(USERNAME);
+
+        mockMvc.perform(get(BASE_URL + "/" + USERNAME + "/trainings"))
+                .andExpect(status().isUnauthorized());
+
+        verify(traineeService, never()).getTraineeTrainings(any(), any(), any(), any(), any());
+    }
+
+    // ==================== Activate / deactivate ====================
+
+    @Test
+    void activateStatus_shouldReturn200WhenLogged() throws Exception {
         ActivateDeactivateRequest request = new ActivateDeactivateRequest(false);
 
         mockMvc.perform(patch(BASE_URL + "/" + USERNAME + "/activate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(PASSWORD_HEADER, PASSWORD)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
+        verify(authenticationService).checkLogged(USERNAME);
         verify(traineeService).setActiveStatus(USERNAME, false);
+    }
+
+    @Test
+    void activateStatus_shouldReturn401WhenNotLogged() throws Exception {
+        ActivateDeactivateRequest request = new ActivateDeactivateRequest(false);
+        doThrow(new AuthenticationException(NOT_LOGGED_ERROR))
+                .when(authenticationService).checkLogged(USERNAME);
+
+        mockMvc.perform(patch(BASE_URL + "/" + USERNAME + "/activate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
+
+        verify(traineeService, never()).setActiveStatus(any(), anyBoolean());
     }
 
     @Test
@@ -278,9 +374,18 @@ class TraineeControllerTest {
 
         mockMvc.perform(patch(BASE_URL + "/" + USERNAME + "/activate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(PASSWORD_HEADER, PASSWORD)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Trainee is already active"));
+    }
+
+    @Test
+    void activateStatus_shouldReturn400WhenIsActiveNull() throws Exception {
+        String json = "{}";
+
+        mockMvc.perform(patch(BASE_URL + "/" + USERNAME + "/activate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
     }
 }

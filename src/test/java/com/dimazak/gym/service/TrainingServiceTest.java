@@ -6,6 +6,7 @@ import com.dimazak.gym.dao.TrainingDao;
 import com.dimazak.gym.dao.TrainingTypeDao;
 import com.dimazak.gym.exception.EntityNotFoundException;
 import com.dimazak.gym.exception.ValidationException;
+import com.dimazak.gym.metrics.GymMetrics;
 import com.dimazak.gym.model.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +39,7 @@ class TrainingServiceTest {
     @Mock private TraineeDao traineeDao;
     @Mock private TrainerDao trainerDao;
     @Mock private TrainingTypeDao trainingTypeDao;
+    @Mock private GymMetrics gymMetrics;
 
     @InjectMocks
     private TrainingService trainingService;

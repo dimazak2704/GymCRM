@@ -1,6 +1,7 @@
 package com.dimazak.gym.controller;
 
 import com.dimazak.gym.dto.AddTrainingRequest;
+import com.dimazak.gym.exception.AuthenticationException;
 import com.dimazak.gym.exception.EntityNotFoundException;
 import com.dimazak.gym.exception.GlobalExceptionHandler;
 import com.dimazak.gym.service.AuthenticationService;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDate;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -32,9 +34,7 @@ class TrainingControllerTest {
     private static final LocalDate TRAINING_DATE = LocalDate.of(2024, 4, 1);
     private static final int TRAINING_DURATION = 60;
     private static final int INVALID_DURATION = -1;
-    private static final String PASSWORD = "pass123456";
-    private static final String USERNAME_HEADER = "X-Username";
-    private static final String PASSWORD_HEADER = "X-Password";
+    private static final String NOT_LOGGED_ERROR = "User is not logged in. Please log in first.";
     private static final String BASE_URL = "/api/trainings";
 
     private MockMvc mockMvc;
@@ -56,20 +56,34 @@ class TrainingControllerTest {
     }
 
     @Test
-    void addTraining_shouldReturn200() throws Exception {
+    void addTraining_shouldReturn200WhenTraineeLogged() throws Exception {
         AddTrainingRequest request = new AddTrainingRequest(
                 TRAINEE_USERNAME, TRAINER_USERNAME, TRAINING_NAME, TRAINING_DATE, TRAINING_DURATION);
 
         mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(USERNAME_HEADER, TRAINEE_USERNAME)
-                        .header(PASSWORD_HEADER, PASSWORD)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        verify(authenticationService).authenticate(TRAINEE_USERNAME, PASSWORD);
+        verify(authenticationService).checkLogged(TRAINEE_USERNAME);
         verify(trainingService).addTraining(TRAINEE_USERNAME, TRAINER_USERNAME,
                 TRAINING_NAME, TRAINING_DATE, TRAINING_DURATION);
+    }
+
+    @Test
+    void addTraining_shouldReturn401WhenTraineeNotLogged() throws Exception {
+        AddTrainingRequest request = new AddTrainingRequest(
+                TRAINEE_USERNAME, TRAINER_USERNAME, TRAINING_NAME, TRAINING_DATE, TRAINING_DURATION);
+        doThrow(new AuthenticationException(NOT_LOGGED_ERROR))
+                .when(authenticationService).checkLogged(TRAINEE_USERNAME);
+
+        mockMvc.perform(post(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value(NOT_LOGGED_ERROR));
+
+        verify(trainingService, never()).addTraining(any(), any(), any(), any(), anyInt());
     }
 
     @Test
@@ -79,8 +93,31 @@ class TrainingControllerTest {
 
         mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(USERNAME_HEADER, TRAINEE_USERNAME)
-                        .header(PASSWORD_HEADER, PASSWORD)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(authenticationService);
+        verifyNoInteractions(trainingService);
+    }
+
+    @Test
+    void addTraining_shouldReturn400WhenTrainerUsernameBlank() throws Exception {
+        AddTrainingRequest request = new AddTrainingRequest(
+                TRAINEE_USERNAME, "", TRAINING_NAME, TRAINING_DATE, TRAINING_DURATION);
+
+        mockMvc.perform(post(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void addTraining_shouldReturn400WhenNameBlank() throws Exception {
+        AddTrainingRequest request = new AddTrainingRequest(
+                TRAINEE_USERNAME, TRAINER_USERNAME, "", TRAINING_DATE, TRAINING_DURATION);
+
+        mockMvc.perform(post(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
@@ -92,8 +129,6 @@ class TrainingControllerTest {
 
         mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(USERNAME_HEADER, TRAINEE_USERNAME)
-                        .header(PASSWORD_HEADER, PASSWORD)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
@@ -105,8 +140,6 @@ class TrainingControllerTest {
 
         mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(USERNAME_HEADER, TRAINEE_USERNAME)
-                        .header(PASSWORD_HEADER, PASSWORD)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
@@ -120,22 +153,7 @@ class TrainingControllerTest {
 
         mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(USERNAME_HEADER, TRAINEE_USERNAME)
-                        .header(PASSWORD_HEADER, PASSWORD)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void addTraining_shouldReturn400WhenNameBlank() throws Exception {
-        AddTrainingRequest request = new AddTrainingRequest(
-                TRAINEE_USERNAME, TRAINER_USERNAME, "", TRAINING_DATE, TRAINING_DURATION);
-
-        mockMvc.perform(post(BASE_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(USERNAME_HEADER, TRAINEE_USERNAME)
-                        .header(PASSWORD_HEADER, PASSWORD)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
     }
 }

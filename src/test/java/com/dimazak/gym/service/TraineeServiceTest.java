@@ -5,6 +5,7 @@ import com.dimazak.gym.dao.TrainerDao;
 import com.dimazak.gym.dao.TrainingDao;
 import com.dimazak.gym.exception.EntityNotFoundException;
 import com.dimazak.gym.exception.ValidationException;
+import com.dimazak.gym.metrics.GymMetrics;
 import com.dimazak.gym.model.*;
 import com.dimazak.gym.util.PasswordGenerator;
 import com.dimazak.gym.util.UsernameGenerator;
@@ -50,6 +51,7 @@ class TraineeServiceTest {
     @Mock private UsernameGenerator usernameGenerator;
     @Mock private PasswordGenerator passwordGenerator;
     @Mock private PasswordEncoder passwordEncoder;
+    @Mock private GymMetrics gymMetrics;
 
     @InjectMocks
     private TraineeService traineeService;

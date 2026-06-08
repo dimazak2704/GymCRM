@@ -4,6 +4,7 @@ import com.dimazak.gym.dto.AddTrainingRequest;
 import com.dimazak.gym.service.AuthenticationService;
 import com.dimazak.gym.service.TrainingService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -28,14 +29,13 @@ public class TrainingController {
     }
 
     @PostMapping
-    @Operation(summary = "Add training", description = "Create a new training session")
-    public ResponseEntity<Void> addTraining(
-            @Valid @RequestBody AddTrainingRequest request,
-            @RequestHeader("X-Username") String username,
-            @RequestHeader("X-Password") String password) {
+    @Operation(summary = "Add training",
+            description = "Create a new training. Trainee must be logged in.")
+    public ResponseEntity<Void> addTraining(@Valid @RequestBody AddTrainingRequest request) {
         log.info("Adding training: '{}' for trainee: {}, trainer: {}",
                 request.trainingName(), request.traineeUsername(), request.trainerUsername());
-        authenticationService.authenticate(username, password);
+
+        authenticationService.checkLogged(request.traineeUsername());
 
         trainingService.addTraining(
                 request.traineeUsername(), request.trainerUsername(),

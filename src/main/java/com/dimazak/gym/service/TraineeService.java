@@ -5,6 +5,7 @@ import com.dimazak.gym.dao.TrainerDao;
 import com.dimazak.gym.dao.TrainingDao;
 import com.dimazak.gym.exception.EntityNotFoundException;
 import com.dimazak.gym.exception.ValidationException;
+import com.dimazak.gym.metrics.GymMetrics;
 import com.dimazak.gym.model.Trainee;
 import com.dimazak.gym.model.Trainer;
 import com.dimazak.gym.model.Training;
@@ -34,19 +35,21 @@ public class TraineeService {
     private final UsernameGenerator usernameGenerator;
     private final PasswordGenerator passwordGenerator;
     private final PasswordEncoder passwordEncoder;
+    private final GymMetrics gymMetrics;
 
     public TraineeService(TraineeDao traineeDao,
                           TrainerDao trainerDao,
                           TrainingDao trainingDao,
                           UsernameGenerator usernameGenerator,
                           PasswordGenerator passwordGenerator,
-                          PasswordEncoder passwordEncoder) {
+                          PasswordEncoder passwordEncoder, GymMetrics gymMetrics) {
         this.traineeDao = traineeDao;
         this.trainerDao = trainerDao;
         this.trainingDao = trainingDao;
         this.usernameGenerator = usernameGenerator;
         this.passwordGenerator = passwordGenerator;
         this.passwordEncoder = passwordEncoder;
+        this.gymMetrics = gymMetrics;
     }
 
     @Transactional
@@ -67,6 +70,8 @@ public class TraineeService {
 
         log.info("Trainee profile created. Username: {}, TraineeId: {}",
                 username, trainee.getId());
+        gymMetrics.incrementTraineeRegistration();
+
         return trainee;
     }
 
