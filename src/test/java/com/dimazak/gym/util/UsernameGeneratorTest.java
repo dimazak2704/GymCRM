@@ -1,6 +1,7 @@
 package com.dimazak.gym.util;
 
 import com.dimazak.gym.dao.UserDao;
+import com.dimazak.gym.model.Role;
 import com.dimazak.gym.model.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,7 +39,7 @@ class UsernameGeneratorTest {
 
     @Test
     void generateUsername_shouldAppendNumberOnConflict() {
-        User existing = new User(1L, FIRST_NAME, LAST_NAME, BASE_USERNAME, PASSWORD, true);
+        User existing = new User(1L, FIRST_NAME, LAST_NAME, BASE_USERNAME, PASSWORD, true, Role.TRAINEE);
         when(userDao.findAll()).thenReturn(List.of(existing));
 
         assertEquals(USERNAME_WITH_1, usernameGenerator.generateUsername(FIRST_NAME, LAST_NAME));
@@ -46,8 +47,8 @@ class UsernameGeneratorTest {
 
     @Test
     void generateUsername_shouldIncrementOnMultipleConflicts() {
-        User u1 = new User(1L, FIRST_NAME, LAST_NAME, BASE_USERNAME, PASSWORD, true);
-        User u2 = new User(2L, FIRST_NAME, LAST_NAME, USERNAME_WITH_1, PASSWORD, true);
+        User u1 = new User(1L, FIRST_NAME, LAST_NAME, BASE_USERNAME, PASSWORD, true, Role.TRAINEE);
+        User u2 = new User(2L, FIRST_NAME, LAST_NAME, USERNAME_WITH_1, PASSWORD, true, Role.TRAINEE);
         when(userDao.findAll()).thenReturn(List.of(u1, u2));
 
         assertEquals(USERNAME_WITH_2, usernameGenerator.generateUsername(FIRST_NAME, LAST_NAME));
@@ -55,7 +56,7 @@ class UsernameGeneratorTest {
 
     @Test
     void generateUsername_shouldNotConflictWithDifferentBase() {
-        User other = new User(1L, "Jane", "Doe", "Jane.Doe", PASSWORD, true);
+        User other = new User(1L, "Jane", "Doe", "Jane.Doe", PASSWORD, true, Role.TRAINER);
         when(userDao.findAll()).thenReturn(List.of(other));
 
         assertEquals(BASE_USERNAME, usernameGenerator.generateUsername(FIRST_NAME, LAST_NAME));

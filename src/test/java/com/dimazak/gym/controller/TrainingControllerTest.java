@@ -1,10 +1,8 @@
 package com.dimazak.gym.controller;
 
 import com.dimazak.gym.dto.AddTrainingRequest;
-import com.dimazak.gym.exception.AuthenticationException;
 import com.dimazak.gym.exception.EntityNotFoundException;
 import com.dimazak.gym.exception.GlobalExceptionHandler;
-import com.dimazak.gym.service.AuthenticationService;
 import com.dimazak.gym.service.TrainingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -33,15 +31,12 @@ class TrainingControllerTest {
     private static final String TRAINING_NAME = "Morning Cardio";
     private static final LocalDate TRAINING_DATE = LocalDate.of(2024, 4, 1);
     private static final int TRAINING_DURATION = 60;
-    private static final int INVALID_DURATION = -1;
-    private static final String NOT_LOGGED_ERROR = "User is not logged in. Please log in first.";
     private static final String BASE_URL = "/api/trainings";
 
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
 
     @Mock private TrainingService trainingService;
-    @Mock private AuthenticationService authenticationService;
 
     @InjectMocks
     private TrainingController controller;
@@ -51,12 +46,11 @@ class TrainingControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
-        objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
     }
 
     @Test
-    void addTraining_shouldReturn200WhenTraineeLogged() throws Exception {
+    void addTraining_shouldReturn200() throws Exception {
         AddTrainingRequest request = new AddTrainingRequest(
                 TRAINEE_USERNAME, TRAINER_USERNAME, TRAINING_NAME, TRAINING_DATE, TRAINING_DURATION);
 
@@ -65,25 +59,8 @@ class TrainingControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        verify(authenticationService).checkLogged(TRAINEE_USERNAME);
         verify(trainingService).addTraining(TRAINEE_USERNAME, TRAINER_USERNAME,
                 TRAINING_NAME, TRAINING_DATE, TRAINING_DURATION);
-    }
-
-    @Test
-    void addTraining_shouldReturn401WhenTraineeNotLogged() throws Exception {
-        AddTrainingRequest request = new AddTrainingRequest(
-                TRAINEE_USERNAME, TRAINER_USERNAME, TRAINING_NAME, TRAINING_DATE, TRAINING_DURATION);
-        doThrow(new AuthenticationException(NOT_LOGGED_ERROR))
-                .when(authenticationService).checkLogged(TRAINEE_USERNAME);
-
-        mockMvc.perform(post(BASE_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value(NOT_LOGGED_ERROR));
-
-        verify(trainingService, never()).addTraining(any(), any(), any(), any(), anyInt());
     }
 
     @Test
@@ -96,7 +73,6 @@ class TrainingControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
 
-        verifyNoInteractions(authenticationService);
         verifyNoInteractions(trainingService);
     }
 
@@ -125,7 +101,7 @@ class TrainingControllerTest {
     @Test
     void addTraining_shouldReturn400WhenDurationNegative() throws Exception {
         AddTrainingRequest request = new AddTrainingRequest(
-                TRAINEE_USERNAME, TRAINER_USERNAME, TRAINING_NAME, TRAINING_DATE, INVALID_DURATION);
+                TRAINEE_USERNAME, TRAINER_USERNAME, TRAINING_NAME, TRAINING_DATE, -1);
 
         mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)

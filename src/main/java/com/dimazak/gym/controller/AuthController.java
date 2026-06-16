@@ -2,15 +2,12 @@ package com.dimazak.gym.controller;
 
 import com.dimazak.gym.dto.ChangePasswordRequest;
 import com.dimazak.gym.dto.LoginRequest;
-import com.dimazak.gym.service.AuthenticationService;
-import com.dimazak.gym.service.TraineeService;
-import com.dimazak.gym.service.TrainerService;
+import com.dimazak.gym.dto.LoginResponse;
+import com.dimazak.gym.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,33 +16,25 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication", description = "Login, logout and password management")
 public class AuthController {
 
-    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
+    private static final String BEARER_PREFIX = "Bearer ";
 
-    private final AuthenticationService authenticationService;
-    private final TraineeService traineeService;
-    private final TrainerService trainerService;
+    private final AuthService authService;
 
-    public AuthController(AuthenticationService authenticationService,
-                          TraineeService traineeService,
-                          TrainerService trainerService) {
-        this.authenticationService = authenticationService;
-        this.traineeService = traineeService;
-        this.trainerService = trainerService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Login", description = "Verify credentials and mark user as logged in")
-    public ResponseEntity<Void> login(@Valid @RequestBody LoginRequest request) {
-        authenticationService.login(request.username(), request.password());
-        return ResponseEntity.ok().build();
+    @Operation(summary = "Login", description = "Authenticate and receive a JWT token")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request.username(), request.password()));
     }
 
     @PostMapping("/logout")
-    @Operation(summary = "Logout", description = "Mark user as logged out")
+    @Operation(summary = "Logout", description = "Invalidate the current JWT token")
     public ResponseEntity<Void> logout(
-            @Parameter(description = "Username") @RequestParam String username) {
-        authenticationService.checkLogged(username);
-        authenticationService.logout(username);
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        authService.logout(extractToken(authHeader));
         return ResponseEntity.ok().build();
     }
 
@@ -53,15 +42,15 @@ public class AuthController {
     @Operation(summary = "Change password",
             description = "Change user password (requires current password)")
     public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
-        log.info("Password change request for user: {}", request.username());
-        authenticationService.authenticate(request.username(), request.oldPassword());
-
-        if (traineeService.existsByUsername(request.username())) {
-            traineeService.changePassword(request.username(), request.newPassword());
-        } else {
-            trainerService.changePassword(request.username(), request.newPassword());
-        }
-
+        authService.changePassword(
+                request.username(), request.oldPassword(), request.newPassword());
         return ResponseEntity.ok().build();
+    }
+
+    private String extractToken(String authHeader) {
+        if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
+            return authHeader.substring(BEARER_PREFIX.length());
+        }
+        return authHeader;
     }
 }

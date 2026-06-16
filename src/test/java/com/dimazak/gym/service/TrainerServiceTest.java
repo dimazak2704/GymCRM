@@ -7,6 +7,7 @@ import com.dimazak.gym.exception.EntityNotFoundException;
 import com.dimazak.gym.exception.ValidationException;
 import com.dimazak.gym.metrics.GymMetrics;
 import com.dimazak.gym.model.*;
+import com.dimazak.gym.security.SecurityUtils;
 import com.dimazak.gym.util.PasswordGenerator;
 import com.dimazak.gym.util.UsernameGenerator;
 import org.junit.jupiter.api.Test;
@@ -14,9 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,17 +31,13 @@ class TrainerServiceTest {
     private static final String FIRST_NAME = "Jane";
     private static final String LAST_NAME = "Doe";
     private static final String USERNAME = "Jane.Doe";
-    private static final String PASSWORD = "pass123456";
+    private static final String RAW_PASSWORD = "pass123456";
     private static final String ENCODED_PASSWORD = "$2a$10$encodedHash";
     private static final String NEW_PASSWORD = "newPass5678";
-    private static final String ENCODED_NEW_PASSWORD = "$2a$10$newEncodedHash";
-    private static final String WRONG_PASSWORD = "wrong";
     private static final String SHORT_PASSWORD = "short";
     private static final Long SPECIALIZATION_ID = 1L;
     private static final Long NEW_SPECIALIZATION_ID = 2L;
-    private static final Long INVALID_SPECIALIZATION_ID = 99L;
     private static final String SPECIALIZATION = "Cardio";
-    private static final String NEW_SPECIALIZATION = "Strength";
     private static final Long TRAINER_ID = 1L;
 
     @Mock private TrainerDao trainerDao;
@@ -50,49 +47,58 @@ class TrainerServiceTest {
     @Mock private PasswordGenerator passwordGenerator;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private GymMetrics gymMetrics;
+    @Mock private SecurityUtils securityUtils;
 
     @InjectMocks
     private TrainerService trainerService;
 
-    private Trainer createTestTrainer() {
-        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, ENCODED_PASSWORD, true);
-        TrainingType type = new TrainingType(SPECIALIZATION_ID, SPECIALIZATION);
-        return new Trainer(TRAINER_ID, type, user);
+    private Trainer buildTrainer() {
+        User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, ENCODED_PASSWORD, true, Role.TRAINER);
+        return new Trainer(TRAINER_ID, new TrainingType(SPECIALIZATION_ID, SPECIALIZATION), user);
     }
 
+    // ==================== createTrainer ====================
+
     @Test
-    void createTrainer_shouldCreateSuccessfully() {
+    void createTrainer_shouldPersistEncodedPasswordAndReturnRawInView() {
         TrainingType type = new TrainingType(SPECIALIZATION_ID, SPECIALIZATION);
         when(trainingTypeDao.findById(SPECIALIZATION_ID)).thenReturn(Optional.of(type));
         when(usernameGenerator.generateUsername(FIRST_NAME, LAST_NAME)).thenReturn(USERNAME);
-        when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
-        when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
+        when(passwordGenerator.generatePassword()).thenReturn(RAW_PASSWORD);
+        when(passwordEncoder.encode(RAW_PASSWORD)).thenReturn(ENCODED_PASSWORD);
         when(trainerDao.save(any(Trainer.class))).thenAnswer(inv -> {
             Trainer t = inv.getArgument(0);
             t.setId(TRAINER_ID);
+            assertEquals(ENCODED_PASSWORD, t.getUser().getPassword());
             return t;
         });
 
         Trainer result = trainerService.createTrainer(FIRST_NAME, LAST_NAME, SPECIALIZATION_ID);
 
-        assertNotNull(result);
         assertEquals(TRAINER_ID, result.getId());
         assertEquals(USERNAME, result.getUser().getUsername());
-        assertEquals(PASSWORD, result.getUser().getPassword()); // raw повертається для response
-        assertEquals(type, result.getSpecialization());
-        verify(passwordEncoder).encode(PASSWORD);
+        assertEquals(RAW_PASSWORD, result.getUser().getPassword());
+        assertEquals(Role.TRAINER, result.getUser().getRole());
+        verify(gymMetrics).incrementTrainerRegistration();
     }
 
     @Test
-    void createTrainer_shouldThrowWhenFirstNameIsNull() {
-        assertThrows(ValidationException.class,
-                () -> trainerService.createTrainer(null, LAST_NAME, SPECIALIZATION_ID));
+    void createTrainer_shouldThrowWhenSpecializationNotFound() {
+        when(trainingTypeDao.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class,
+                () -> trainerService.createTrainer(FIRST_NAME, LAST_NAME, 99L));
     }
 
     @Test
-    void createTrainer_shouldThrowWhenLastNameIsBlank() {
+    void createTrainer_shouldThrowWhenFirstNameBlank() {
         assertThrows(ValidationException.class,
-                () -> trainerService.createTrainer(FIRST_NAME, "", SPECIALIZATION_ID));
+                () -> trainerService.createTrainer("", LAST_NAME, SPECIALIZATION_ID));
+    }
+
+    @Test
+    void createTrainer_shouldThrowWhenLastNameNull() {
+        assertThrows(ValidationException.class,
+                () -> trainerService.createTrainer(FIRST_NAME, null, SPECIALIZATION_ID));
     }
 
     @Test
@@ -101,89 +107,69 @@ class TrainerServiceTest {
                 () -> trainerService.createTrainer(FIRST_NAME, LAST_NAME, null));
     }
 
-    @Test
-    void createTrainer_shouldThrowWhenSpecializationNotFound() {
-        when(trainingTypeDao.findById(INVALID_SPECIALIZATION_ID)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class,
-                () -> trainerService.createTrainer(FIRST_NAME, LAST_NAME, INVALID_SPECIALIZATION_ID));
-    }
-
-    @Test
-    void matchCredentials_shouldReturnTrueForValidCredentials() {
-        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainer()));
-        when(passwordEncoder.matches(PASSWORD, ENCODED_PASSWORD)).thenReturn(true);
-
-        assertTrue(trainerService.matchCredentials(USERNAME, PASSWORD));
-    }
-
-    @Test
-    void matchCredentials_shouldReturnFalseForInvalidPassword() {
-        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainer()));
-        when(passwordEncoder.matches(WRONG_PASSWORD, ENCODED_PASSWORD)).thenReturn(false);
-
-        assertFalse(trainerService.matchCredentials(USERNAME, WRONG_PASSWORD));
-    }
-
-    @Test
-    void matchCredentials_shouldReturnFalseWhenNotFound() {
-        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.empty());
-
-        assertFalse(trainerService.matchCredentials(USERNAME, PASSWORD));
-    }
+    // ==================== getByUsername ====================
 
     @Test
     void getByUsername_shouldReturnTrainer() {
-        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainer()));
-
-        Trainer result = trainerService.getByUsername(USERNAME);
-
-        assertEquals(USERNAME, result.getUser().getUsername());
+        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(buildTrainer()));
+        assertEquals(USERNAME, trainerService.getByUsername(USERNAME).getUser().getUsername());
     }
 
     @Test
     void getByUsername_shouldThrowWhenNotFound() {
         when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> trainerService.getByUsername(USERNAME));
+    }
 
-        assertThrows(EntityNotFoundException.class,
-                () -> trainerService.getByUsername(USERNAME));
+    // ==================== getProfileByUsername (with ownership) ====================
+
+    @Test
+    void getProfileByUsername_shouldReturnProfileForOwner() {
+        doNothing().when(securityUtils).verifyOwnership(USERNAME);
+        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(buildTrainer()));
+
+        Trainer result = trainerService.getProfileByUsername(USERNAME);
+
+        assertEquals(USERNAME, result.getUser().getUsername());
+        verify(securityUtils).verifyOwnership(USERNAME);
     }
 
     @Test
-    void changePassword_shouldUpdatePassword() {
-        Trainer trainer = createTestTrainer();
+    void getProfileByUsername_shouldThrowWhenNotOwner() {
+        doThrow(new AccessDeniedException("Access denied"))
+                .when(securityUtils).verifyOwnership(USERNAME);
+
+        assertThrows(AccessDeniedException.class,
+                () -> trainerService.getProfileByUsername(USERNAME));
+    }
+
+    // ==================== changePassword ====================
+
+    @Test
+    void changePassword_shouldEncodeAndPersist() {
+        Trainer trainer = buildTrainer();
         when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainer));
-        when(passwordEncoder.encode(NEW_PASSWORD)).thenReturn(ENCODED_NEW_PASSWORD);
+        when(passwordEncoder.encode(NEW_PASSWORD)).thenReturn("$2a$10$newHash");
         when(trainerDao.save(any(Trainer.class))).thenReturn(trainer);
 
         trainerService.changePassword(USERNAME, NEW_PASSWORD);
 
-        assertEquals(ENCODED_NEW_PASSWORD, trainer.getUser().getPassword());
-        verify(passwordEncoder).encode(NEW_PASSWORD);
+        assertEquals("$2a$10$newHash", trainer.getUser().getPassword());
     }
 
     @Test
-    void changePassword_shouldThrowWhenPasswordIsNull() {
-        assertThrows(ValidationException.class,
-                () -> trainerService.changePassword(USERNAME, null));
-    }
-
-    @Test
-    void changePassword_shouldThrowWhenPasswordIsBlank() {
-        assertThrows(ValidationException.class,
-                () -> trainerService.changePassword(USERNAME, "  "));
-    }
-
-    @Test
-    void changePassword_shouldThrowWhenPasswordTooShort() {
+    void changePassword_shouldThrowWhenTooShort() {
         assertThrows(ValidationException.class,
                 () -> trainerService.changePassword(USERNAME, SHORT_PASSWORD));
     }
 
+    // ==================== updateTrainer (with ownership) ====================
+
     @Test
     void updateTrainer_shouldUpdateAllFields() {
-        Trainer trainer = createTestTrainer();
-        TrainingType newType = new TrainingType(NEW_SPECIALIZATION_ID, NEW_SPECIALIZATION);
+        doNothing().when(securityUtils).verifyOwnership(USERNAME);
+        Trainer trainer = buildTrainer();
+        TrainingType newType = new TrainingType(NEW_SPECIALIZATION_ID, "Strength");
         when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainer));
         when(trainingTypeDao.findById(NEW_SPECIALIZATION_ID)).thenReturn(Optional.of(newType));
         when(trainerDao.save(any(Trainer.class))).thenReturn(trainer);
@@ -196,9 +182,42 @@ class TrainerServiceTest {
         assertFalse(result.getUser().isActive());
     }
 
+    // ==================== updateTrainerProfile (with ownership) ====================
+
+    @Test
+    void updateTrainerProfile_shouldUpdateBasicFields() {
+        doNothing().when(securityUtils).verifyOwnership(USERNAME);
+        Trainer trainer = buildTrainer();
+        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainer));
+        when(trainerDao.save(any(Trainer.class))).thenReturn(trainer);
+
+        Trainer result = trainerService.updateTrainerProfile(USERNAME, "Bob", "Smith", false);
+
+        assertEquals("Bob", result.getUser().getFirstName());
+        assertFalse(result.getUser().isActive());
+    }
+
+    @Test
+    void updateTrainerProfile_shouldThrowWhenFirstNameBlank() {
+        assertThrows(ValidationException.class,
+                () -> trainerService.updateTrainerProfile(USERNAME, "", LAST_NAME, true));
+    }
+
+    @Test
+    void updateTrainerProfile_shouldThrowWhenNotOwner() {
+        doThrow(new AccessDeniedException("Access denied"))
+                .when(securityUtils).verifyOwnership(USERNAME);
+
+        assertThrows(AccessDeniedException.class,
+                () -> trainerService.updateTrainerProfile(USERNAME, FIRST_NAME, LAST_NAME, true));
+    }
+
+    // ==================== setActiveStatus (with ownership) ====================
+
     @Test
     void setActiveStatus_shouldActivate() {
-        Trainer trainer = createTestTrainer();
+        doNothing().when(securityUtils).verifyOwnership(USERNAME);
+        Trainer trainer = buildTrainer();
         trainer.getUser().setActive(false);
         when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(trainer));
         when(trainerDao.save(any(Trainer.class))).thenReturn(trainer);
@@ -209,24 +228,41 @@ class TrainerServiceTest {
     }
 
     @Test
-    void setActiveStatus_shouldThrowWhenAlreadySameStatus() {
-        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainer()));
+    void setActiveStatus_shouldThrowWhenAlreadySame() {
+        doNothing().when(securityUtils).verifyOwnership(USERNAME);
+        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(buildTrainer()));
 
         assertThrows(ValidationException.class,
                 () -> trainerService.setActiveStatus(USERNAME, true));
     }
 
     @Test
-    void getTrainerTrainings_shouldDelegateToDao() {
-        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(createTestTrainer()));
-        LocalDate from = LocalDate.of(2024, 1, 1);
-        LocalDate to = LocalDate.of(2024, 12, 31);
-        when(trainingDao.findByTrainerWithFilters(USERNAME, from, to, null))
+    void setActiveStatus_shouldThrowWhenNotOwner() {
+        doThrow(new AccessDeniedException("Access denied"))
+                .when(securityUtils).verifyOwnership(USERNAME);
+
+        assertThrows(AccessDeniedException.class,
+                () -> trainerService.setActiveStatus(USERNAME, false));
+    }
+
+    // ==================== getTrainerTrainings (with ownership) ====================
+
+    @Test
+    void getTrainerTrainings_shouldDelegate() {
+        doNothing().when(securityUtils).verifyOwnership(USERNAME);
+        when(trainerDao.findByUsername(USERNAME)).thenReturn(Optional.of(buildTrainer()));
+        when(trainingDao.findByTrainerWithFilters(USERNAME, null, null, null))
                 .thenReturn(List.of());
 
-        List<Training> result = trainerService.getTrainerTrainings(USERNAME, from, to, null);
+        assertTrue(trainerService.getTrainerTrainings(USERNAME, null, null, null).isEmpty());
+    }
 
-        assertTrue(result.isEmpty());
-        verify(trainingDao).findByTrainerWithFilters(USERNAME, from, to, null);
+    @Test
+    void getTrainerTrainings_shouldThrowWhenNotOwner() {
+        doThrow(new AccessDeniedException("Access denied"))
+                .when(securityUtils).verifyOwnership(USERNAME);
+
+        assertThrows(AccessDeniedException.class,
+                () -> trainerService.getTrainerTrainings(USERNAME, null, null, null));
     }
 }

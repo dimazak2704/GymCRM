@@ -26,19 +26,21 @@ public class User {
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
 
-    @Column(name = "is_logged", nullable = false)
-    private boolean isLogged;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 
     public User() {}
 
     public User(Long id, String firstName, String lastName,
-                String username, String password, boolean isActive) {
+                String username, String password, boolean isActive, Role role) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.password = password;
         this.isActive = isActive;
+        this.role = role;
     }
 
     public Long getId() { return id; }
@@ -59,13 +61,8 @@ public class User {
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
 
-    public boolean isLogged() {
-        return isLogged;
-    }
-
-    public void setLogged(boolean logged) {
-        isLogged = logged;
-    }
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 
     @Override
     public boolean equals(Object o) {
@@ -82,6 +79,6 @@ public class User {
     public String toString() {
         return "User{id=" + id + ", firstName='" + firstName +
                 "', lastName='" + lastName + "', username='" + username +
-                "', isActive=" + isActive + '}';
+                "', isActive=" + isActive + ", role=" + role + '}';
     }
 }

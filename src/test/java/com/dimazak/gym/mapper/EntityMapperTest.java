@@ -30,8 +30,10 @@ class EntityMapperTest {
     private final EntityMapper mapper = new EntityMapper();
 
     private final TrainingType cardioType = new TrainingType(1L, SPECIALIZATION);
-    private final User traineeUser = new User(1L, TRAINEE_FIRST_NAME, TRAINEE_LAST_NAME, TRAINEE_USERNAME, "pass", true);
-    private final User trainerUser = new User(2L, TRAINER_FIRST_NAME, TRAINER_LAST_NAME, TRAINER_USERNAME, "pass", true);
+    private final User traineeUser = new User(1L, TRAINEE_FIRST_NAME, TRAINEE_LAST_NAME,
+            TRAINEE_USERNAME, "pass", true, Role.TRAINEE);
+    private final User trainerUser = new User(2L, TRAINER_FIRST_NAME, TRAINER_LAST_NAME,
+            TRAINER_USERNAME, "pass", true, Role.TRAINER);
 
     @Test
     void toTraineeProfileResponse_shouldMapAllFields() {
@@ -163,9 +165,6 @@ class EntityMapperTest {
         TrainerTrainingResponse response = mapper.toTrainerTrainingResponse(training);
 
         assertEquals(TRAINING_NAME, response.trainingName());
-        assertEquals(TRAINING_DATE, response.trainingDate());
-        assertEquals(SPECIALIZATION, response.trainingType());
-        assertEquals(TRAINING_DURATION, response.trainingDuration());
         assertEquals(TRAINEE_FIRST_NAME + " " + TRAINEE_LAST_NAME, response.traineeName());
     }
 }

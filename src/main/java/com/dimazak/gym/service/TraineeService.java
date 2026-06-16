@@ -6,10 +6,12 @@ import com.dimazak.gym.dao.TrainingDao;
 import com.dimazak.gym.exception.EntityNotFoundException;
 import com.dimazak.gym.exception.ValidationException;
 import com.dimazak.gym.metrics.GymMetrics;
+import com.dimazak.gym.model.Role;
 import com.dimazak.gym.model.Trainee;
 import com.dimazak.gym.model.Trainer;
 import com.dimazak.gym.model.Training;
 import com.dimazak.gym.model.User;
+import com.dimazak.gym.security.SecurityUtils;
 import com.dimazak.gym.util.PasswordGenerator;
 import com.dimazak.gym.util.UsernameGenerator;
 import org.hibernate.Hibernate;
@@ -36,13 +38,16 @@ public class TraineeService {
     private final PasswordGenerator passwordGenerator;
     private final PasswordEncoder passwordEncoder;
     private final GymMetrics gymMetrics;
+    private final SecurityUtils securityUtils;
 
     public TraineeService(TraineeDao traineeDao,
                           TrainerDao trainerDao,
                           TrainingDao trainingDao,
                           UsernameGenerator usernameGenerator,
                           PasswordGenerator passwordGenerator,
-                          PasswordEncoder passwordEncoder, GymMetrics gymMetrics) {
+                          PasswordEncoder passwordEncoder,
+                          GymMetrics gymMetrics,
+                          SecurityUtils securityUtils) {
         this.traineeDao = traineeDao;
         this.trainerDao = trainerDao;
         this.trainingDao = trainingDao;
@@ -50,6 +55,7 @@ public class TraineeService {
         this.passwordGenerator = passwordGenerator;
         this.passwordEncoder = passwordEncoder;
         this.gymMetrics = gymMetrics;
+        this.securityUtils = securityUtils;
     }
 
     @Transactional
@@ -62,30 +68,28 @@ public class TraineeService {
         String rawPassword = passwordGenerator.generatePassword();
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
-        User user = new User(null, firstName, lastName, username, encodedPassword, true);
-        Trainee trainee = new Trainee(null, dateOfBirth, address, user);
-        trainee = traineeDao.save(trainee);
-
-        trainee.getUser().setPassword(rawPassword);
+        User user = new User(null, firstName, lastName, username,
+                encodedPassword, true, Role.TRAINEE);
+        Trainee persisted = traineeDao.save(new Trainee(null, dateOfBirth, address, user));
 
         log.info("Trainee profile created. Username: {}, TraineeId: {}",
-                username, trainee.getId());
+                username, persisted.getId());
         gymMetrics.incrementTraineeRegistration();
 
-        return trainee;
+        return toRegistrationView(persisted, rawPassword);
+    }
+
+    private Trainee toRegistrationView(Trainee persisted, String rawPassword) {
+        User u = persisted.getUser();
+        User view = new User(u.getId(), u.getFirstName(), u.getLastName(),
+                u.getUsername(), rawPassword, u.isActive(), u.getRole());
+        return new Trainee(persisted.getId(),
+                persisted.getDateOfBirth(), persisted.getAddress(), view);
     }
 
     @Transactional(readOnly = true)
     public boolean existsByUsername(String username) {
         return traineeDao.findByUsername(username).isPresent();
-    }
-
-    @Transactional(readOnly = true)
-    public boolean matchCredentials(String username, String password) {
-        log.debug("Matching credentials for trainee username: {}", username);
-        return traineeDao.findByUsername(username)
-                .map(trainee -> passwordEncoder.matches(password, trainee.getUser().getPassword()))
-                .orElse(false);
     }
 
     @Transactional(readOnly = true)
@@ -102,6 +106,8 @@ public class TraineeService {
     @Transactional(readOnly = true)
     public Trainee getProfileByUsername(String username) {
         log.info("Getting full profile for trainee: {}", username);
+        securityUtils.verifyOwnership(username);
+
         Trainee trainee = getByUsername(username);
         Hibernate.initialize(trainee.getTrainers());
         trainee.getTrainers().forEach(t -> {
@@ -126,6 +132,7 @@ public class TraineeService {
     public Trainee updateTrainee(String username, String firstName, String lastName,
                                  LocalDate dateOfBirth, String address, boolean isActive) {
         log.info("Updating trainee profile: {}", username);
+        securityUtils.verifyOwnership(username);
         validateRequiredFields(firstName, lastName);
 
         Trainee trainee = getByUsername(username);
@@ -150,6 +157,8 @@ public class TraineeService {
     @Transactional
     public void setActiveStatus(String username, boolean isActive) {
         log.info("Setting active status for trainee '{}' to: {}", username, isActive);
+        securityUtils.verifyOwnership(username);
+
         Trainee trainee = getByUsername(username);
 
         if (trainee.getUser().isActive() == isActive) {
@@ -165,6 +174,8 @@ public class TraineeService {
     @Transactional
     public void deleteByUsername(String username) {
         log.info("Deleting trainee profile by username: {}", username);
+        securityUtils.verifyOwnership(username);
+
         Trainee trainee = getByUsername(username);
         traineeDao.delete(trainee);
         log.info("Trainee '{}' deleted successfully", username);
@@ -175,6 +186,8 @@ public class TraineeService {
                                               LocalDate toDate, String trainerName,
                                               String trainingTypeName) {
         log.info("Getting trainings for trainee: {}", username);
+        securityUtils.verifyOwnership(username);
+
         getByUsername(username);
         return trainingDao.findByTraineeWithFilters(username, fromDate, toDate, trainerName, trainingTypeName);
     }
@@ -182,6 +195,8 @@ public class TraineeService {
     @Transactional(readOnly = true)
     public List<Trainer> getUnassignedTrainers(String traineeUsername) {
         log.info("Getting unassigned trainers for trainee: {}", traineeUsername);
+        securityUtils.verifyOwnership(traineeUsername);
+
         getByUsername(traineeUsername);
         return trainerDao.findUnassignedByTraineeUsername(traineeUsername);
     }
@@ -189,6 +204,8 @@ public class TraineeService {
     @Transactional
     public Trainee updateTrainersList(String username, List<String> trainerUsernames) {
         log.info("Updating trainers list for trainee: {}", username);
+        securityUtils.verifyOwnership(username);
+
         Trainee trainee = getByUsername(username);
 
         List<Trainer> trainers = trainerUsernames.stream()

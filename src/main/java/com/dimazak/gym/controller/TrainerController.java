@@ -4,7 +4,6 @@ import com.dimazak.gym.dto.*;
 import com.dimazak.gym.mapper.EntityMapper;
 import com.dimazak.gym.model.Trainer;
 import com.dimazak.gym.model.Training;
-import com.dimazak.gym.service.AuthenticationService;
 import com.dimazak.gym.service.TrainerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -28,14 +28,10 @@ public class TrainerController {
     private static final Logger log = LoggerFactory.getLogger(TrainerController.class);
 
     private final TrainerService trainerService;
-    private final AuthenticationService authenticationService;
     private final EntityMapper mapper;
 
-    public TrainerController(TrainerService trainerService,
-                             AuthenticationService authenticationService,
-                             EntityMapper mapper) {
+    public TrainerController(TrainerService trainerService, EntityMapper mapper) {
         this.trainerService = trainerService;
-        this.authenticationService = authenticationService;
         this.mapper = mapper;
     }
 
@@ -56,23 +52,23 @@ public class TrainerController {
     }
 
     @GetMapping("/{username}")
+    @PreAuthorize("hasRole('TRAINER')")
     @Operation(summary = "Get trainer profile")
     public ResponseEntity<TrainerProfileResponse> getProfile(
             @Parameter(description = "Trainer username") @PathVariable String username) {
         log.info("Getting profile for trainer: {}", username);
-        authenticationService.checkLogged(username);
 
         Trainer trainer = trainerService.getProfileByUsername(username);
         return ResponseEntity.ok(mapper.toTrainerProfileResponse(trainer));
     }
 
     @PutMapping("/{username}")
+    @PreAuthorize("hasRole('TRAINER')")
     @Operation(summary = "Update trainer profile")
     public ResponseEntity<UpdateTrainerResponse> updateProfile(
             @Parameter(description = "Trainer username") @PathVariable String username,
             @Valid @RequestBody UpdateTrainerRequest request) {
         log.info("Updating trainer profile: {}", username);
-        authenticationService.checkLogged(username);
 
         Trainer trainer = trainerService.updateTrainerProfile(
                 username, request.firstName(), request.lastName(), request.isActive());
@@ -81,6 +77,7 @@ public class TrainerController {
     }
 
     @GetMapping("/{username}/trainings")
+    @PreAuthorize("hasRole('TRAINER')")
     @Operation(summary = "Get trainer trainings list")
     public ResponseEntity<List<TrainerTrainingResponse>> getTrainings(
             @Parameter(description = "Trainer username") @PathVariable String username,
@@ -88,7 +85,6 @@ public class TrainerController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodTo,
             @RequestParam(required = false) String traineeName) {
         log.info("Getting trainings for trainer: {}", username);
-        authenticationService.checkLogged(username);
 
         List<Training> trainings = trainerService.getTrainerTrainings(
                 username, periodFrom, periodTo, traineeName);
@@ -97,12 +93,12 @@ public class TrainerController {
     }
 
     @PatchMapping("/{username}/activate")
+    @PreAuthorize("hasRole('TRAINER')")
     @Operation(summary = "Activate/De-activate trainer")
     public ResponseEntity<Void> updateActiveStatus(
             @Parameter(description = "Trainer username") @PathVariable String username,
             @Valid @RequestBody ActivateDeactivateRequest request) {
         log.info("Updating active status for trainer: {} to: {}", username, request.isActive());
-        authenticationService.checkLogged(username);
 
         trainerService.setActiveStatus(username, request.isActive());
         return ResponseEntity.ok().build();

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -26,6 +27,13 @@ public class GlobalExceptionHandler {
         log.warn("Transaction [{}] Authentication failed: {}",
                 MDC.get("transactionId"), ex.getMessage());
         return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        log.warn("Transaction [{}] Access denied: {}",
+                MDC.get("transactionId"), ex.getMessage());
+        return buildResponse(HttpStatus.FORBIDDEN, "Access denied");
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
@@ -61,11 +69,12 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, "Missing required header: " + ex.getHeaderName());
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
-        log.error("Transaction [{}] Unexpected error: {}",
-                MDC.get("transactionId"), ex.getMessage(), ex);
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingParam(MissingServletRequestParameterException ex) {
+        log.warn("Transaction [{}] Missing parameter: {}",
+                MDC.get("transactionId"), ex.getParameterName());
+        return buildResponse(HttpStatus.BAD_REQUEST,
+                "Missing required parameter: " + ex.getParameterName());
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
@@ -74,12 +83,11 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.NOT_FOUND, "Resource not found");
     }
 
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ErrorResponse> handleMissingParam(MissingServletRequestParameterException ex) {
-        log.warn("Transaction [{}] Missing parameter: {}",
-                MDC.get("transactionId"), ex.getParameterName());
-        return buildResponse(HttpStatus.BAD_REQUEST,
-                "Missing required parameter: " + ex.getParameterName());
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
+        log.error("Transaction [{}] Unexpected error: {}",
+                MDC.get("transactionId"), ex.getMessage(), ex);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
     }
 
     private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message) {

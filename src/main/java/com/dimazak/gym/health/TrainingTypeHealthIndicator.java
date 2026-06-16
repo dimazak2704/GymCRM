@@ -1,7 +1,6 @@
 package com.dimazak.gym.health;
 
 import com.dimazak.gym.service.TrainingTypeService;
-import org.jspecify.annotations.Nullable;
 import org.springframework.boot.health.contributor.Health;
 import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.stereotype.Component;

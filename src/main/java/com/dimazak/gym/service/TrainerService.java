@@ -6,10 +6,12 @@ import com.dimazak.gym.dao.TrainingTypeDao;
 import com.dimazak.gym.exception.EntityNotFoundException;
 import com.dimazak.gym.exception.ValidationException;
 import com.dimazak.gym.metrics.GymMetrics;
+import com.dimazak.gym.model.Role;
 import com.dimazak.gym.model.Trainer;
 import com.dimazak.gym.model.Training;
 import com.dimazak.gym.model.TrainingType;
 import com.dimazak.gym.model.User;
+import com.dimazak.gym.security.SecurityUtils;
 import com.dimazak.gym.util.PasswordGenerator;
 import com.dimazak.gym.util.UsernameGenerator;
 import org.hibernate.Hibernate;
@@ -35,13 +37,16 @@ public class TrainerService {
     private final PasswordGenerator passwordGenerator;
     private final PasswordEncoder passwordEncoder;
     private final GymMetrics gymMetrics;
+    private final SecurityUtils securityUtils;
 
     public TrainerService(TrainerDao trainerDao,
                           TrainingDao trainingDao,
                           TrainingTypeDao trainingTypeDao,
                           UsernameGenerator usernameGenerator,
                           PasswordGenerator passwordGenerator,
-                          PasswordEncoder passwordEncoder, GymMetrics gymMetrics) {
+                          PasswordEncoder passwordEncoder,
+                          GymMetrics gymMetrics,
+                          SecurityUtils securityUtils) {
         this.trainerDao = trainerDao;
         this.trainingDao = trainingDao;
         this.trainingTypeDao = trainingTypeDao;
@@ -49,6 +54,7 @@ public class TrainerService {
         this.passwordGenerator = passwordGenerator;
         this.passwordEncoder = passwordEncoder;
         this.gymMetrics = gymMetrics;
+        this.securityUtils = securityUtils;
     }
 
     @Transactional
@@ -64,24 +70,22 @@ public class TrainerService {
         String rawPassword = passwordGenerator.generatePassword();
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
-        User user = new User(null, firstName, lastName, username, encodedPassword, true);
-        Trainer trainer = new Trainer(null, specialization, user);
-        trainer = trainerDao.save(trainer);
-
-        trainer.getUser().setPassword(rawPassword);
+        User user = new User(null, firstName, lastName, username,
+                encodedPassword, true, Role.TRAINER);
+        Trainer persisted = trainerDao.save(new Trainer(null, specialization, user));
 
         log.info("Trainer profile created. Username: {}, TrainerId: {}",
-                username, trainer.getId());
+                username, persisted.getId());
         gymMetrics.incrementTrainerRegistration();
-        return trainer;
+
+        return toRegistrationView(persisted, rawPassword);
     }
 
-    @Transactional(readOnly = true)
-    public boolean matchCredentials(String username, String password) {
-        log.debug("Matching credentials for trainer username: {}", username);
-        return trainerDao.findByUsername(username)
-                .map(trainer -> passwordEncoder.matches(password, trainer.getUser().getPassword()))
-                .orElse(false);
+    private Trainer toRegistrationView(Trainer persisted, String rawPassword) {
+        User u = persisted.getUser();
+        User view = new User(u.getId(), u.getFirstName(), u.getLastName(),
+                u.getUsername(), rawPassword, u.isActive(), u.getRole());
+        return new Trainer(persisted.getId(), persisted.getSpecialization(), view);
     }
 
     @Transactional(readOnly = true)
@@ -98,6 +102,8 @@ public class TrainerService {
     @Transactional(readOnly = true)
     public Trainer getProfileByUsername(String username) {
         log.info("Getting full profile for trainer: {}", username);
+        securityUtils.verifyOwnership(username);
+
         Trainer trainer = getByUsername(username);
         Hibernate.initialize(trainer.getSpecialization());
         Hibernate.initialize(trainer.getTrainees());
@@ -120,6 +126,7 @@ public class TrainerService {
     public Trainer updateTrainer(String username, String firstName, String lastName,
                                  Long specializationId, boolean isActive) {
         log.info("Updating trainer profile: {}", username);
+        securityUtils.verifyOwnership(username);
         validateRequiredFields(firstName, lastName, specializationId);
 
         TrainingType specialization = trainingTypeDao.findById(specializationId)
@@ -142,6 +149,8 @@ public class TrainerService {
     public Trainer updateTrainerProfile(String username, String firstName,
                                         String lastName, boolean isActive) {
         log.info("Updating trainer profile (REST): {}", username);
+        securityUtils.verifyOwnership(username);
+
         if (firstName == null || firstName.isBlank()) {
             throw new ValidationException("First name is required");
         }
@@ -167,6 +176,8 @@ public class TrainerService {
     @Transactional
     public void setActiveStatus(String username, boolean isActive) {
         log.info("Setting active status for trainer '{}' to: {}", username, isActive);
+        securityUtils.verifyOwnership(username);
+
         Trainer trainer = getByUsername(username);
 
         if (trainer.getUser().isActive() == isActive) {
@@ -183,6 +194,8 @@ public class TrainerService {
     public List<Training> getTrainerTrainings(String username, LocalDate fromDate,
                                               LocalDate toDate, String traineeName) {
         log.info("Getting trainings for trainer: {}", username);
+        securityUtils.verifyOwnership(username);
+
         getByUsername(username);
         return trainingDao.findByTrainerWithFilters(username, fromDate, toDate, traineeName);
     }

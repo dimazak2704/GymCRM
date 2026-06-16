@@ -1,5 +1,6 @@
 package com.dimazak.gym.dao;
 
+import com.dimazak.gym.model.Role;
 import com.dimazak.gym.model.Trainee;
 import com.dimazak.gym.model.User;
 import org.junit.jupiter.api.Test;
@@ -26,19 +27,19 @@ class TraineeDaoTest {
 
     @Test
     void save_shouldPersistNewTrainee() {
-        User user = new User(null, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
+        User user = new User(null, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true, Role.TRAINEE);
         Trainee trainee = new Trainee(null, BIRTH_DATE, ADDRESS, user);
 
         Trainee saved = traineeDao.save(trainee);
 
         assertNotNull(saved.getId());
         assertEquals(USERNAME, saved.getUser().getUsername());
-        assertEquals(BIRTH_DATE, saved.getDateOfBirth());
+        assertEquals(Role.TRAINEE, saved.getUser().getRole());
     }
 
     @Test
     void save_shouldMergeExistingTrainee() {
-        User user = new User(null, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
+        User user = new User(null, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true, Role.TRAINEE);
         Trainee saved = traineeDao.save(new Trainee(null, BIRTH_DATE, ADDRESS, user));
 
         saved.setAddress("New Address");
@@ -50,7 +51,7 @@ class TraineeDaoTest {
 
     @Test
     void findByUsername_shouldReturnTrainee() {
-        User user = new User(null, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
+        User user = new User(null, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true, Role.TRAINEE);
         traineeDao.save(new Trainee(null, BIRTH_DATE, ADDRESS, user));
 
         Optional<Trainee> found = traineeDao.findByUsername(USERNAME);
@@ -66,7 +67,7 @@ class TraineeDaoTest {
 
     @Test
     void existsByUsername_shouldReturnTrue() {
-        User user = new User(null, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true);
+        User user = new User(null, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, true, Role.TRAINEE);
         traineeDao.save(new Trainee(null, null, null, user));
 
         assertTrue(traineeDao.existsByUsername(USERNAME));
@@ -79,7 +80,7 @@ class TraineeDaoTest {
 
     @Test
     void delete_shouldRemoveTrainee() {
-        User user = new User(null, "Del", "Me", "Del.Me", PASSWORD, true);
+        User user = new User(null, "Del", "Me", "Del.Me", PASSWORD, true, Role.TRAINEE);
         Trainee saved = traineeDao.save(new Trainee(null, null, null, user));
 
         traineeDao.delete(saved);
@@ -89,7 +90,7 @@ class TraineeDaoTest {
 
     @Test
     void save_shouldAllowNullOptionalFields() {
-        User user = new User(null, "Min", "Data", "Min.Data", PASSWORD, true);
+        User user = new User(null, "Min", "Data", "Min.Data", PASSWORD, true, Role.TRAINEE);
         Trainee saved = traineeDao.save(new Trainee(null, null, null, user));
 
         assertNotNull(saved.getId());

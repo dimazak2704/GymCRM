@@ -46,10 +46,10 @@ class TrainingDaoTest {
         entityManager.persist(cardioType);
         entityManager.persist(yogaType);
 
-        User traineeUser = new User(null, "John", "Doe", TRAINEE_USERNAME, PASSWORD, true);
+        User traineeUser = new User(null, "John", "Doe", TRAINEE_USERNAME, PASSWORD, true, Role.TRAINEE);
         trainee = traineeDao.save(new Trainee(null, LocalDate.of(1990, 1, 1), "Addr", traineeUser));
 
-        User trainerUser = new User(null, "Jane", "Smith", TRAINER_USERNAME, PASSWORD, true);
+        User trainerUser = new User(null, "Jane", "Smith", TRAINER_USERNAME, PASSWORD, true, Role.TRAINER);
         trainer = trainerDao.save(new Trainer(null, cardioType, trainerUser));
 
         entityManager.flush();
@@ -91,7 +91,7 @@ class TrainingDaoTest {
 
     @Test
     void findByTrainee_shouldFilterByTrainerName() {
-        User trainerUser2 = new User(null, "Bob", "Jones", "Bob.Jones", PASSWORD, true);
+        User trainerUser2 = new User(null, "Bob", "Jones", "Bob.Jones", PASSWORD, true, Role.TRAINER);
         Trainer trainer2 = trainerDao.save(new Trainer(null, cardioType, trainerUser2));
 
         trainingDao.save(new Training(null, trainee, trainer, "With Jane", cardioType, APRIL_DATE, DURATION_60));
@@ -138,7 +138,7 @@ class TrainingDaoTest {
 
     @Test
     void findByTrainer_shouldFilterByTraineeName() {
-        User traineeUser2 = new User(null, "Alice", "Brown", "Alice.Brown", PASSWORD, true);
+        User traineeUser2 = new User(null, "Alice", "Brown", "Alice.Brown", PASSWORD, true, Role.TRAINEE);
         Trainee trainee2 = traineeDao.save(new Trainee(null, null, null, traineeUser2));
 
         trainingDao.save(new Training(null, trainee, trainer, "With John", cardioType, APRIL_DATE, DURATION_60));

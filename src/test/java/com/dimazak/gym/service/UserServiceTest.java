@@ -13,37 +13,21 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    @Mock
-    private UserDao userDao;
+    @Mock private UserDao userDao;
 
     @InjectMocks
     private UserService userService;
 
     @Test
-    void countActiveUsers_shouldReturnCountFromDao() {
+    void countActiveUsers_shouldDelegateToDao() {
         when(userDao.countActiveUsers()).thenReturn(15L);
-
-        long result = userService.countActiveUsers();
-
-        assertEquals(15L, result);
+        assertEquals(15L, userService.countActiveUsers());
         verify(userDao).countActiveUsers();
     }
 
     @Test
-    void countActiveUsers_shouldReturnZeroWhenNoActiveUsers() {
+    void countActiveUsers_shouldReturnZeroWhenNoneActive() {
         when(userDao.countActiveUsers()).thenReturn(0L);
-
-        long result = userService.countActiveUsers();
-
-        assertEquals(0L, result);
-    }
-
-    @Test
-    void countActiveUsers_shouldDelegateToDao() {
-        when(userDao.countActiveUsers()).thenReturn(100L);
-
-        userService.countActiveUsers();
-
-        verify(userDao, times(1)).countActiveUsers();
+        assertEquals(0L, userService.countActiveUsers());
     }
 }

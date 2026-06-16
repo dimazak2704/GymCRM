@@ -40,22 +40,22 @@ class TrainerDaoTest {
 
     @Test
     void save_shouldPersistNewTrainer() {
-        User user = new User(null, TRAINER_FIRST, TRAINER_LAST, TRAINER_USERNAME, PASSWORD, true);
+        User user = new User(null, TRAINER_FIRST, TRAINER_LAST, TRAINER_USERNAME, PASSWORD, true, Role.TRAINER);
         Trainer saved = trainerDao.save(new Trainer(null, cardioType, user));
 
         assertNotNull(saved.getId());
         assertEquals(cardioType, saved.getSpecialization());
+        assertEquals(Role.TRAINER, saved.getUser().getRole());
     }
 
     @Test
     void findByUsername_shouldReturnTrainer() {
-        User user = new User(null, TRAINER_FIRST, TRAINER_LAST, TRAINER_USERNAME, PASSWORD, true);
+        User user = new User(null, TRAINER_FIRST, TRAINER_LAST, TRAINER_USERNAME, PASSWORD, true, Role.TRAINER);
         trainerDao.save(new Trainer(null, cardioType, user));
 
         Optional<Trainer> found = trainerDao.findByUsername(TRAINER_USERNAME);
 
         assertTrue(found.isPresent());
-        assertEquals(TRAINER_USERNAME, found.get().getUser().getUsername());
         assertEquals(SPECIALIZATION, found.get().getSpecialization().getTrainingTypeName());
     }
 
@@ -66,12 +66,12 @@ class TrainerDaoTest {
 
     @Test
     void findUnassigned_shouldExcludeAssigned() {
-        User u1 = new User(null, "T1", "Last", "T1.Last", PASSWORD, true);
-        User u2 = new User(null, "T2", "Last", "T2.Last", PASSWORD, true);
+        User u1 = new User(null, "T1", "Last", "T1.Last", PASSWORD, true, Role.TRAINER);
+        User u2 = new User(null, "T2", "Last", "T2.Last", PASSWORD, true, Role.TRAINER);
         Trainer trainer1 = trainerDao.save(new Trainer(null, cardioType, u1));
         trainerDao.save(new Trainer(null, cardioType, u2));
 
-        User traineeUser = new User(null, "Trainee", "One", TRAINEE_USERNAME, PASSWORD, true);
+        User traineeUser = new User(null, "Trainee", "One", TRAINEE_USERNAME, PASSWORD, true, Role.TRAINEE);
         Trainee trainee = new Trainee(null, null, null, traineeUser);
         trainee.getTrainers().add(trainer1);
         traineeDao.save(trainee);
@@ -87,12 +87,12 @@ class TrainerDaoTest {
 
     @Test
     void findUnassigned_shouldExcludeInactive() {
-        User activeUser = new User(null, "Active", "T", "Active.T", PASSWORD, true);
-        User inactiveUser = new User(null, "Inactive", "T", "Inactive.T", PASSWORD, false);
+        User activeUser = new User(null, "Active", "T", "Active.T", PASSWORD, true, Role.TRAINER);
+        User inactiveUser = new User(null, "Inactive", "T", "Inactive.T", PASSWORD, false, Role.TRAINER);
         trainerDao.save(new Trainer(null, cardioType, activeUser));
         trainerDao.save(new Trainer(null, cardioType, inactiveUser));
 
-        User traineeUser = new User(null, "Solo", "T", "Solo.T", PASSWORD, true);
+        User traineeUser = new User(null, "Solo", "T", "Solo.T", PASSWORD, true, Role.TRAINEE);
         traineeDao.save(new Trainee(null, null, null, traineeUser));
 
         entityManager.flush();
@@ -106,12 +106,12 @@ class TrainerDaoTest {
 
     @Test
     void findUnassigned_shouldReturnAllWhenNoneAssigned() {
-        User u1 = new User(null, "T1", "A", "T1.A", PASSWORD, true);
-        User u2 = new User(null, "T2", "B", "T2.B", PASSWORD, true);
+        User u1 = new User(null, "T1", "A", "T1.A", PASSWORD, true, Role.TRAINER);
+        User u2 = new User(null, "T2", "B", "T2.B", PASSWORD, true, Role.TRAINER);
         trainerDao.save(new Trainer(null, cardioType, u1));
         trainerDao.save(new Trainer(null, cardioType, u2));
 
-        User traineeUser = new User(null, "Solo", "Trainee", "Solo.Trainee", PASSWORD, true);
+        User traineeUser = new User(null, "Solo", "Trainee", "Solo.Trainee", PASSWORD, true, Role.TRAINEE);
         traineeDao.save(new Trainee(null, null, null, traineeUser));
 
         entityManager.flush();

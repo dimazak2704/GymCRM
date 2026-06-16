@@ -5,7 +5,6 @@ import com.dimazak.gym.mapper.EntityMapper;
 import com.dimazak.gym.model.Trainee;
 import com.dimazak.gym.model.Trainer;
 import com.dimazak.gym.model.Training;
-import com.dimazak.gym.service.AuthenticationService;
 import com.dimazak.gym.service.TraineeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -29,19 +29,16 @@ public class TraineeController {
     private static final Logger log = LoggerFactory.getLogger(TraineeController.class);
 
     private final TraineeService traineeService;
-    private final AuthenticationService authenticationService;
     private final EntityMapper mapper;
 
-    public TraineeController(TraineeService traineeService,
-                             AuthenticationService authenticationService,
-                             EntityMapper mapper) {
+    public TraineeController(TraineeService traineeService, EntityMapper mapper) {
         this.traineeService = traineeService;
-        this.authenticationService = authenticationService;
         this.mapper = mapper;
     }
 
     @PostMapping
-    @Operation(summary = "Register trainee", description = "Create a new trainee profile. No authentication required.")
+    @Operation(summary = "Register trainee",
+            description = "Create a new trainee profile. No authentication required.")
     public ResponseEntity<RegistrationResponse> register(
             @Valid @RequestBody TraineeRegistrationRequest request) {
         log.info("Registering new trainee: {} {}", request.firstName(), request.lastName());
@@ -59,23 +56,23 @@ public class TraineeController {
     }
 
     @GetMapping("/{username}")
+    @PreAuthorize("hasRole('TRAINEE')")
     @Operation(summary = "Get trainee profile", description = "Get trainee profile by username")
     public ResponseEntity<TraineeProfileResponse> getProfile(
             @Parameter(description = "Trainee username") @PathVariable String username) {
         log.info("Getting profile for trainee: {}", username);
-        authenticationService.checkLogged(username);
 
         Trainee trainee = traineeService.getProfileByUsername(username);
         return ResponseEntity.ok(mapper.toTraineeProfileResponse(trainee));
     }
 
     @PutMapping("/{username}")
+    @PreAuthorize("hasRole('TRAINEE')")
     @Operation(summary = "Update trainee profile")
     public ResponseEntity<UpdateTraineeResponse> updateProfile(
             @Parameter(description = "Trainee username") @PathVariable String username,
             @Valid @RequestBody UpdateTraineeRequest request) {
         log.info("Updating trainee profile: {}", username);
-        authenticationService.checkLogged(username);
 
         Trainee trainee = traineeService.updateTrainee(
                 username, request.firstName(), request.lastName(),
@@ -85,34 +82,34 @@ public class TraineeController {
     }
 
     @DeleteMapping("/{username}")
+    @PreAuthorize("hasRole('TRAINEE')")
     @Operation(summary = "Delete trainee profile")
     public ResponseEntity<Void> deleteProfile(
             @Parameter(description = "Trainee username") @PathVariable String username) {
         log.info("Deleting trainee profile: {}", username);
-        authenticationService.checkLogged(username);
 
         traineeService.deleteByUsername(username);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{username}/unassigned-trainers")
+    @PreAuthorize("hasRole('TRAINEE')")
     @Operation(summary = "Get unassigned trainers")
     public ResponseEntity<List<TrainerSummary>> getUnassignedTrainers(
             @Parameter(description = "Trainee username") @PathVariable String username) {
         log.info("Getting unassigned trainers for trainee: {}", username);
-        authenticationService.checkLogged(username);
 
         List<Trainer> trainers = traineeService.getUnassignedTrainers(username);
         return ResponseEntity.ok(trainers.stream().map(mapper::toTrainerSummary).toList());
     }
 
     @PutMapping("/{username}/trainers")
+    @PreAuthorize("hasRole('TRAINEE')")
     @Operation(summary = "Update trainee's trainer list")
     public ResponseEntity<List<TrainerSummary>> updateTrainersList(
             @Parameter(description = "Trainee username") @PathVariable String username,
             @Valid @RequestBody UpdateTraineeTrainersRequest request) {
         log.info("Updating trainers list for trainee: {}", username);
-        authenticationService.checkLogged(username);
 
         Trainee trainee = traineeService.updateTrainersList(username, request.trainerUsernames());
 
@@ -124,6 +121,7 @@ public class TraineeController {
     }
 
     @GetMapping("/{username}/trainings")
+    @PreAuthorize("hasRole('TRAINEE')")
     @Operation(summary = "Get trainee trainings list")
     public ResponseEntity<List<TraineeTrainingResponse>> getTrainings(
             @Parameter(description = "Trainee username") @PathVariable String username,
@@ -133,7 +131,6 @@ public class TraineeController {
             @RequestParam(required = false) String trainingType) {
         log.info("Getting trainings for trainee: {} [from={}, to={}, trainer={}, type={}]",
                 username, periodFrom, periodTo, trainerName, trainingType);
-        authenticationService.checkLogged(username);
 
         List<Training> trainings = traineeService.getTraineeTrainings(
                 username, periodFrom, periodTo, trainerName, trainingType);
@@ -142,12 +139,12 @@ public class TraineeController {
     }
 
     @PatchMapping("/{username}/activate")
+    @PreAuthorize("hasRole('TRAINEE')")
     @Operation(summary = "Activate/De-activate trainee")
     public ResponseEntity<Void> updateActiveStatus(
             @Parameter(description = "Trainee username") @PathVariable String username,
             @Valid @RequestBody ActivateDeactivateRequest request) {
         log.info("Updating active status for trainee: {} to: {}", username, request.isActive());
-        authenticationService.checkLogged(username);
 
         traineeService.setActiveStatus(username, request.isActive());
         return ResponseEntity.ok().build();
