@@ -5,6 +5,7 @@ import com.dimazak.gym.mapper.EntityMapper;
 import com.dimazak.gym.model.Trainee;
 import com.dimazak.gym.model.Trainer;
 import com.dimazak.gym.model.Training;
+import com.dimazak.gym.security.JwtService;
 import com.dimazak.gym.service.TraineeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,15 +31,19 @@ public class TraineeController {
 
     private final TraineeService traineeService;
     private final EntityMapper mapper;
+    private final JwtService jwtService;
 
-    public TraineeController(TraineeService traineeService, EntityMapper mapper) {
+    public TraineeController(TraineeService traineeService,
+                             EntityMapper mapper,
+                             JwtService jwtService) {
         this.traineeService = traineeService;
         this.mapper = mapper;
+        this.jwtService = jwtService;
     }
 
     @PostMapping
     @Operation(summary = "Register trainee",
-            description = "Create a new trainee profile. No authentication required.")
+            description = "Create a new trainee profile and receive a JWT token. No authentication required.")
     public ResponseEntity<RegistrationResponse> register(
             @Valid @RequestBody TraineeRegistrationRequest request) {
         log.info("Registering new trainee: {} {}", request.firstName(), request.lastName());
@@ -47,9 +52,14 @@ public class TraineeController {
                 request.firstName(), request.lastName(),
                 request.dateOfBirth(), request.address());
 
+        String token = jwtService.generateToken(
+                trainee.getUser().getUsername(),
+                trainee.getUser().getRole());
+
         RegistrationResponse response = new RegistrationResponse(
                 trainee.getUser().getUsername(),
-                trainee.getUser().getPassword());
+                trainee.getUser().getPassword(),
+                token);
 
         log.info("Trainee registered successfully with username: {}", response.username());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

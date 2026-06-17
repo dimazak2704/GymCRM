@@ -4,6 +4,7 @@ import com.dimazak.gym.dto.*;
 import com.dimazak.gym.mapper.EntityMapper;
 import com.dimazak.gym.model.Trainer;
 import com.dimazak.gym.model.Training;
+import com.dimazak.gym.security.JwtService;
 import com.dimazak.gym.service.TrainerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,14 +30,19 @@ public class TrainerController {
 
     private final TrainerService trainerService;
     private final EntityMapper mapper;
+    private final JwtService jwtService;
 
-    public TrainerController(TrainerService trainerService, EntityMapper mapper) {
+    public TrainerController(TrainerService trainerService,
+                             EntityMapper mapper,
+                             JwtService jwtService) {
         this.trainerService = trainerService;
         this.mapper = mapper;
+        this.jwtService = jwtService;
     }
 
     @PostMapping
-    @Operation(summary = "Register trainer", description = "No authentication required.")
+    @Operation(summary = "Register trainer",
+            description = "Create a new trainer profile and receive a JWT token. No authentication required.")
     public ResponseEntity<RegistrationResponse> register(
             @Valid @RequestBody TrainerRegistrationRequest request) {
         log.info("Registering new trainer: {} {}", request.firstName(), request.lastName());
@@ -44,9 +50,14 @@ public class TrainerController {
         Trainer trainer = trainerService.createTrainer(
                 request.firstName(), request.lastName(), request.specializationId());
 
+        String token = jwtService.generateToken(
+                trainer.getUser().getUsername(),
+                trainer.getUser().getRole());
+
         RegistrationResponse response = new RegistrationResponse(
                 trainer.getUser().getUsername(),
-                trainer.getUser().getPassword());
+                trainer.getUser().getPassword(),
+                token);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

@@ -6,6 +6,7 @@ import com.dimazak.gym.exception.GlobalExceptionHandler;
 import com.dimazak.gym.exception.ValidationException;
 import com.dimazak.gym.mapper.EntityMapper;
 import com.dimazak.gym.model.*;
+import com.dimazak.gym.security.JwtService;
 import com.dimazak.gym.service.TraineeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -50,6 +51,7 @@ class TraineeControllerTest {
     private ObjectMapper objectMapper;
 
     @Mock private TraineeService traineeService;
+    @Mock private JwtService jwtService;
     @Spy private EntityMapper mapper;
 
     @InjectMocks
@@ -83,13 +85,15 @@ class TraineeControllerTest {
                 FIRST_NAME, LAST_NAME, BIRTH_DATE, ADDRESS);
         when(traineeService.createTrainee(anyString(), anyString(), any(), any()))
                 .thenReturn(testTrainee);
+        when(jwtService.generateToken(USERNAME, Role.TRAINEE)).thenReturn("test.jwt.token");
 
         mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.username").value(USERNAME))
-                .andExpect(jsonPath("$.password").value(PASSWORD));
+                .andExpect(jsonPath("$.password").value(PASSWORD))
+                .andExpect(jsonPath("$.token").value("test.jwt.token"));
     }
 
     @Test
