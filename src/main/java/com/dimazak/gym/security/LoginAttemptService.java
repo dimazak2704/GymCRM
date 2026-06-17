@@ -9,6 +9,9 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * TODO: Migrate to Redis for distributed state management.
+ */
 @Service
 public class LoginAttemptService {
 

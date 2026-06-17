@@ -3,6 +3,7 @@ package com.dimazak.gym.service;
 import com.dimazak.gym.dao.TrainingTypeDao;
 import com.dimazak.gym.dto.TrainingTypeResponse;
 import com.dimazak.gym.model.TrainingType;
+import com.dimazak.gym.service.impl.TrainingTypeServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,8 +20,7 @@ class TrainingTypeServiceTest {
 
     @Mock private TrainingTypeDao trainingTypeDao;
 
-    @InjectMocks
-    private TrainingTypeService service;
+    @InjectMocks private TrainingTypeServiceImpl service;
 
     @Test
     void getAllTrainingTypes_shouldMapEntities() {

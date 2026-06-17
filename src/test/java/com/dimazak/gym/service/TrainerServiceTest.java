@@ -8,6 +8,7 @@ import com.dimazak.gym.exception.ValidationException;
 import com.dimazak.gym.metrics.GymMetrics;
 import com.dimazak.gym.model.*;
 import com.dimazak.gym.security.SecurityUtils;
+import com.dimazak.gym.service.impl.TrainerServiceImpl;
 import com.dimazak.gym.util.PasswordGenerator;
 import com.dimazak.gym.util.UsernameGenerator;
 import org.junit.jupiter.api.Test;
@@ -49,8 +50,7 @@ class TrainerServiceTest {
     @Mock private GymMetrics gymMetrics;
     @Mock private SecurityUtils securityUtils;
 
-    @InjectMocks
-    private TrainerService trainerService;
+    @InjectMocks private TrainerServiceImpl trainerService;
 
     private Trainer buildTrainer() {
         User user = new User(1L, FIRST_NAME, LAST_NAME, USERNAME, ENCODED_PASSWORD, true, Role.TRAINER);

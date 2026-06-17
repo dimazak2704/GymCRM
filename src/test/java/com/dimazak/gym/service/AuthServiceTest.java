@@ -7,6 +7,9 @@ import com.dimazak.gym.security.JwtService;
 import com.dimazak.gym.security.LoginAttemptService;
 import com.dimazak.gym.security.SecurityUtils;
 import com.dimazak.gym.security.TokenBlacklistService;
+import com.dimazak.gym.service.TraineeService;
+import com.dimazak.gym.service.TrainerService;
+import com.dimazak.gym.service.impl.AuthServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -42,8 +45,7 @@ class AuthServiceTest {
     @Mock private TraineeService traineeService;
     @Mock private TrainerService trainerService;
 
-    @InjectMocks
-    private AuthService authService;
+    @InjectMocks private AuthServiceImpl authService;
 
     private Authentication buildAuthentication(Role role) {
         return new UsernamePasswordAuthenticationToken(

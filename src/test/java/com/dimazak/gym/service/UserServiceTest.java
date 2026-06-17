@@ -1,6 +1,7 @@
 package com.dimazak.gym.service;
 
 import com.dimazak.gym.dao.UserDao;
+import com.dimazak.gym.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,8 +16,7 @@ class UserServiceTest {
 
     @Mock private UserDao userDao;
 
-    @InjectMocks
-    private UserService userService;
+    @InjectMocks private UserServiceImpl userService;
 
     @Test
     void countActiveUsers_shouldDelegateToDao() {

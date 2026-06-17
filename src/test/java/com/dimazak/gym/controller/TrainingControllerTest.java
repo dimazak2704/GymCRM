@@ -6,12 +6,14 @@ import com.dimazak.gym.exception.GlobalExceptionHandler;
 import com.dimazak.gym.service.TrainingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.aspectj.weaver.patterns.HasThisTypePatternTriedToSneakInSomeGenericOrParameterizedTypePatternMatchingStuffAnywhereVisitor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -50,14 +52,14 @@ class TrainingControllerTest {
     }
 
     @Test
-    void addTraining_shouldReturn200() throws Exception {
+    void addTraining_shouldReturn201() throws Exception {
         AddTrainingRequest request = new AddTrainingRequest(
                 TRAINEE_USERNAME, TRAINER_USERNAME, TRAINING_NAME, TRAINING_DATE, TRAINING_DURATION);
 
         mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         verify(trainingService).addTraining(TRAINEE_USERNAME, TRAINER_USERNAME,
                 TRAINING_NAME, TRAINING_DATE, TRAINING_DURATION);

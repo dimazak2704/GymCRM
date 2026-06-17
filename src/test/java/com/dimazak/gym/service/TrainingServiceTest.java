@@ -8,6 +8,7 @@ import com.dimazak.gym.exception.EntityNotFoundException;
 import com.dimazak.gym.exception.ValidationException;
 import com.dimazak.gym.metrics.GymMetrics;
 import com.dimazak.gym.model.*;
+import com.dimazak.gym.service.impl.TrainingServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,8 +38,7 @@ class TrainingServiceTest {
     @Mock private TrainingTypeDao trainingTypeDao;
     @Mock private GymMetrics gymMetrics;
 
-    @InjectMocks
-    private TrainingService trainingService;
+    @InjectMocks private TrainingServiceImpl trainingService;
 
     private Trainee buildTrainee() {
         return new Trainee(1L, LocalDate.of(1990, 1, 1), "Addr",
